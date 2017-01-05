@@ -273,7 +273,7 @@ class AlPseudoAPI(object):
             "var dest_addr = '(?P<dest_address>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})';\n" +
             "var source_port = '(?P<source_port>\d{0,5})';\n" +
             "var dest_port = '(?P<dest_port>\d{0,5})';\n" +
-            "var signature_name = '(?P<signature_name>[=/_\.\w\s-]*)';\n" +
+            "var signature_name = '(?P<signature_name>[=/_()\.\w\s-]*)';\n" +
             "var sensor = '(?P<sensor>[\w\d-]*)';\n" +
             "var protocol = '(?P<protocol>\w*)';\n" +
             "var classification = '(?P<classification>[\w\s-]*)';\n" +
