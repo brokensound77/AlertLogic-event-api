@@ -224,7 +224,7 @@ class AlPseudoAPI(object):
         return packet_info
 
     def __get_signature_details(self, sig_id):
-        primary_ur = 'https://scc.alertlogic.net/ids_signature/{{0}'.format(sig_id)
+        primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
         # backup in the event of a permissions issue to the primary url
         backup_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
         r = self.__alogic.get(primary_ur)
