@@ -402,12 +402,12 @@ class AlPseudoAPI(object):
                 'source_port':          source_port,
                 'dest_port':            dest_port,
                 'signature_name':       signature_name,
-                'signature_details':    signature_details,
                 'sensor':               sensor,
                 'protocol':             protocol,
                 'classification':       classification,
                 'severity':             severity
                 },
+            'signature_details': signature_details,
             'payload': {
                 'full_payload':         full_payload,
                 #'request':             request_payload, #TODO: maybe
