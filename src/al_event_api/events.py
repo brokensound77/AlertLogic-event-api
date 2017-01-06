@@ -1,5 +1,13 @@
 
 
+def to_json():
+    return
+
+
+def to_string():
+    return
+
+
 class Events(object):
     def __init__(self, event_id, url, details, signature_details, payload, event_summary):
         self.event_id = event_id
@@ -8,6 +16,7 @@ class Events(object):
         self.signature_details = ''  # object  ...change to dict?
         self. payload = ''  # object --> EventPayload
         self.event_summary = ''  # object --> EventsPacketSummary
+
 
 ###############################################################################
 ###############################################################################
