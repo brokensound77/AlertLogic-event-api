@@ -27,7 +27,7 @@ def get_events(username, password, customer_id, event_list, api_key=None, summar
 
 class AlPseudoAPI(object):
 
-    name = 'Alert Logic Pseudo API'
+    purpose = 'Alert Logic Pseudo API for events'
 
     def __init__(self, username, password, api_key=None):
         self.__alogic = requests.Session()
@@ -109,6 +109,11 @@ class AlPseudoAPI(object):
         return self.__api_key
 
     def __packet_analysis(self, payload): #request_payload, response_payload):
+        """
+
+        :param payload (str):
+        :return:
+        """
         restful_call = ''
         protocol = ''
         host = ''
@@ -380,13 +385,13 @@ class AlPseudoAPI(object):
     def get_events_from_incident(self, customer_id, incident_id, api_key=None, persist=False):
         """ Accepts an incident (either from global object or from incident_id for retrieval) and returns all events
         associated the incident
-        :param customer_id: This is the actual customer ID as defined by Alert Logic
-        :param incident_id: Alert Logic incident ID
-        :param api_key: API key associated with the account; This can also be globally set for persistence using
+        :param customer_id (str): This is the actual customer ID as defined by Alert Logic
+        :param incident_id (str): Alert Logic incident ID
+        :param api_key (str): API key associated with the account; This can also be globally set for persistence using
             set_api_key
-        :param persist: When incidents are retrieved directly by passing the specified parameters, the global object
-            'incident' is not set by default. In order to properly set it, use the set_incident method. If the Persist
-            flag is set to True, then the incident object will be set with this call
+        :param persist (str): When incidents are retrieved directly by passing the specified parameters, the global
+            object 'incident' is not set by default. In order to properly set it, use the set_incident method. If the
+            persist flag is set to True, then the incident object will be set with this call
         :return:
         """
         #TODO: whats the difference between customer_id and CID again? rax# vs al#??
