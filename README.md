@@ -9,6 +9,8 @@ It is advisable to install within a virtualenv
 
 ##Simple usage:
 ```python
+from al_event_api import AlPseudoAPI
+
 AlertLogic = AlPseudoAPI(username, password)
 ```
 
