@@ -1,6 +1,6 @@
 # AlertLogic-event-api
 
-Client side API for interacting with Alert Logic events (from threat manager). The Alert Logic API does not offer any way to interact with events directly.
+Client side API for interacting with Alert Logic events (from threat manager). Alert Logic does not offer an API or any way to interact with events directly.
 
 ##Installation:
 `pip install .`
