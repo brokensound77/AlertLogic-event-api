@@ -433,7 +433,7 @@ class AlPseudoAPI(object):
             }
         return full_event
 
-    def get_events(self, customer_id, event_list, summary=False):
+    def get_events(self, customer_id, event_list, summary=False, suppress_errors=True):
         """
         Iterates (threaded) through all of the events provided. If analyze is set to true, analysis data is sent in a
             JSON structure as the second item of a tuple. Exceptions are stored in an 'errors' list
@@ -460,6 +460,8 @@ class AlPseudoAPI(object):
             t.start()
         for _thread in threads:
             _thread.join()
+        if not suppress_errors:
+            raise Exception('Their were errors receiving some events: {0}'.format(errors))
         if summary:
             packet_analysis = self.__packet_summary(local_events)
             return local_events, packet_analysis

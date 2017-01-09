@@ -6,10 +6,9 @@ from getpass import getpass
 try:
     from al_event_api import AlPseudoAPI
 except ImportError:
-    from sys import stderr
-    stderr.write('API was imported from local source; check pip installation')
-    from al_event_api import AlPseudoAPI
-    
+    print 'Cannot import api'
+    exit()
+
 
 parser = argparse.ArgumentParser(description='script to test functionality of the al_event_api')
 parser.add_argument('customer_id', default='all_children', help='AL customer id')
