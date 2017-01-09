@@ -8,9 +8,8 @@ Client side API for interacting with Alert Logic events (from threat manager). T
 It is advisable to us a virtualenv
 
 ##Simple usage:
-
-    `AlertLogic = AlPseudoAPI(username, password)
-    events = AlertLogic.get_events_from_incident(customer_id, incident_id, api_key)
-    results = AlertLogic.get_events(customer_id, events, summary=True)`
+`AlertLogic = AlPseudoAPI(username, password)
+events = AlertLogic.get_events_from_incident(customer_id, incident_id, api_key)
+results = AlertLogic.get_events(customer_id, events, summary=True)`
 
 
