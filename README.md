@@ -5,7 +5,7 @@ Client side API for interacting with Alert Logic events (from threat manager). A
 ##Installation:
 `pip install .`
 
-It is advisable to us a virtualenv
+It is advisable to install within a virtualenv
 
 ##Simple usage:
 ```python
