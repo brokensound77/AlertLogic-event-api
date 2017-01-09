@@ -14,7 +14,7 @@ AlertLogic = AlPseudoAPI(username, password)
 
 ###Getting Events
 ```python
-event_list = []  # list of event IDs
+event_list = ['12345', '67890', '13579', '24680']  # list of event IDs
 results = AlertLogic.get_events(customer_id, event_list, summary=True)
 ```
 
