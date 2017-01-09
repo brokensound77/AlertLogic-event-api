@@ -227,15 +227,30 @@ class AlPseudoAPI(object):
         primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
         # backup in the event of a permissions issue to the primary url
         backup_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
+
+        ################################################################################################################
+        # temporary until the TODO below is resolved
+        ############################################
+
+        r = self.__alogic.get(backup_url)
+        winner = 'backup'
+        if r.status_code != 200:
+            return 'Failed to retrieve signature details :('
+
+        # TODO: The primary url will not currently work with the way that Alert Logic implements their webpages because
+        #   the SIDs do not directly align (SID in rule vs SID as they categorize it). Until this is resolved,
+        #   the backup_url will be the only feasible option - thus meaning less data
+        '''
         r = self.__alogic.get(primary_ur)
         winner = 'primary'
-
         if r.status_code != 200:
             r = self.__alogic.get(backup_url)
             winner = 'backup'
-
             if r.status_code != 200:
                 return 'Failed to retrieve signature details :('
+        '''
+        ################################################################################################################
+        ################################################################################################################
 
         if winner == 'primary':
             sig_type = ''
