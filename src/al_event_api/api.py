@@ -435,12 +435,14 @@ class AlPseudoAPI(object):
 
     def get_events(self, customer_id, event_list, summary=False, suppress_errors=True):
         """
-        Iterates (threaded) through all of the events provided. If analyze is set to true, analysis data is sent in a
-            JSON structure as the second item of a tuple. Exceptions are stored in an 'errors' list
+        Iterates (threaded) through all of the events provided. If summary is set to true, then return data is sent in
+            a JSON structure or else just a list of event JSON will be returned
         :param customer_id:
         :param event_list:
         :param summary: setting this to true will execute summary analystics on all of the packets and return a tuple
             of the list of events and a json object of the analysis
+        :param suppress_errors: by default, errors for events which failed to retreive will be suppressed. If set to
+            false, then an exception will be raised with all of the failed events
         :return:
         """
         local_events = []
@@ -463,8 +465,9 @@ class AlPseudoAPI(object):
         if not suppress_errors:
             raise Exception('Their were errors receiving some events: {0}'.format(errors))
         if summary:
-            packet_analysis = self.__packet_summary(local_events)
-            return local_events, packet_analysis
+            data_structure = self.__packet_summary(local_events)
+            data_structure['events'] = local_events
+            return data_structure
         else:
             return local_events
 
