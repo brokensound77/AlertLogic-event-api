@@ -40,3 +40,18 @@ results = AlertLogic.get_events(customer_id, events, summary=True)
 
 pp = pprint.PrettyPrinter(indent=4)
 pp.pprint(results)
+
+
+def test_api(customer_id, event_id,  username=None, password=None, config_file=None, print_this=True):
+    if (username is None or password is None) or config_file is None:
+        if not (args.username or args.password):
+            print 'You must pass credentials (directly or providing a config file) via: script parameters or function parameters,'
+        #
+        #argparse
+    AlertLogic = AlPseudoAPI(username, password)
+    results = AlertLogic.get_event(customer_id, event_id)
+    if print_this:
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(results)
+    else:
+        return results
