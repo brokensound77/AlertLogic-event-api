@@ -1,3 +1,5 @@
+""" Update """
+#TODO: update
 
 import binascii
 import time
@@ -17,7 +19,7 @@ class Event(AlertLogic):
         self.event_url = ''  # set in get_event
         self.event_details = ''  # dict; set in get_event
         self.signature_details = ''  # dict; set in get_event
-        self.event_payload = ''  # object --> EventPayload
+        self.event_payload = ''  # object --> EventPayload  #TODO: capitalize object
         self.get_event()  # triggers process to create this object
 
     def __get_signature_details(self, sig_id):
@@ -301,7 +303,7 @@ class EventPayload(object):
         self.full_payload = full
         self.decompressed = decompressed
         self.raw_hex = raw  # raw hex
-        self.packet_details = self.get_packet_details(packet_details_json)
+        self.packet_details = self.get_packet_details(packet_details_json)  #TODO: capitalize object
 
 
     def get_packet_details(self, packet_details_json):
@@ -311,8 +313,8 @@ class EventPayload(object):
 class PacketDetails(object):
     """Belongs to EventPayload"""
     def __init__(self, packet_details_json):
-        self.request_packet = ''  # object --> RequestPacketDetails
-        self.response_packet = ''  # object --> ResponsePacketDetails
+        self.request_packet = ''  # object --> RequestPacketDetails  #TODO: capitalize object
+        self.response_packet = ''  # object --> ResponsePacketDetails  #TODO: capitalize object
         self.disect_packet_details(packet_details_json)
 
     def disect_packet_details(self, packet_details_json):

@@ -1,3 +1,5 @@
+""" Update """
+#TODO: update
 
 
 from alertlogic import *
@@ -13,12 +15,12 @@ class Incident(AlertLogic):
         AlertLogic.__init__(self, api_key, username, password)
         self.incident_id = str(incident_id)
         self.customer_id = str(customer_id)  # all_children includes all customer accounts that the caller can access
-        self.incident_details = ''  # get_incident_details()
+        self.incident_details = ''  # JSON; get_incident_details()
         self.event_ids = ''  # list of str; retrieved and set in get_incident_details
-        self.login_al()
+        self.login_al()  # authenticates with a session to preserve for event iteration
         self.get_incident_details()  # sets incident_details and event_ids
-        self.events = self.get_event_objects()  # list; Event class objects; set by get_events()
-        self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()
+        self.events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
+        self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
 
     def login_al(self):
         login_params = {#'SMENC': 'ISO-8859-1',
@@ -194,10 +196,10 @@ class EventsPacketSummary(object):
                 try:
                     pass
                     # details
-                    signature = event['details']['signature_name']
-                    host = event['payload']['packet_details']['request_packet']['host']
-                    response = event['payload']['packet_details']['response_packet']['response_code']
-                    event = event['event']
+                    signature = event.event_details['signature_name']
+                    host = event.event_payload.packet_details.request_packet.host
+                    response = event.event_payload.packet_details.response_packet.response_code
+                    event = event.event_id
 
                     if signature not in packet_breakdown.keys():
                         packet_breakdown[signature] = {host: {response: [event]}}
@@ -214,19 +216,19 @@ class EventsPacketSummary(object):
                 # summary
                 # signatures
                 if signature not in unique_signatures.keys():
-                    unique_signatures[signature] = sig_applicable_events = [event['event']]
+                    unique_signatures[signature] = sig_applicable_events = event.event_id
                 else:
-                    unique_signatures[signature].append(event['event'])
+                    unique_signatures[signature].append(event.event_id)
                 # hosts
                 if host not in unique_hosts.keys():
-                    unique_hosts[host] = hosts_applicable_events = [event['event']]
+                    unique_hosts[host] = hosts_applicable_events = [event.event_id]
                 else:
-                    unique_hosts[host].append(event['event'])
+                    unique_hosts[host].append(event.event_id)
                 # response codes
                 if response not in response_code_tally.keys():
-                    response_code_tally[response] = code_applicable_events = [event['event']]
+                    response_code_tally[response] = code_applicable_events = [event.event_id]
                 else:
-                    response_code_tally[response].append(event['event'])
+                    response_code_tally[response].append(event.event_id)
             #packet_info = {
             #    'summary': {
             #        'unique_signatures': unique_signatures,
