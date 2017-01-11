@@ -1,5 +1,7 @@
 
 
+from resources import AlertLogic
+
 def to_json():
     return
 
@@ -11,11 +13,59 @@ def to_string():
 class Events(object):
     def __init__(self, event_id, url, details, signature_details, payload, event_summary):
         self.event_id = event_id
-        self. url = url
-        self.details = ''  # object ...change to dict?
+        self.event_url = url
+        self.event_details = '' # object ...change to dict?
         self.signature_details = ''  # object  ...change to dict?
-        self. payload = ''  # object --> EventPayload
+        self.payload = ''  # object --> EventPayload
         self.event_summary = ''  # object --> EventsPacketSummary
+
+    def set_event_details(self,
+                      source_addr,
+                      dest_addr,
+                      source_port,
+                      dest_port,
+                      signature_name,
+                      sensor,
+                      protocol,
+                      classification,
+                      severity):
+
+        event_details = {
+            'source_addr': source_addr,
+            'dest_addr': dest_addr,
+            'source_port': source_port,
+            'dest_port': dest_port,
+            'signature_name': signature_name,
+            'sensor': sensor,
+            'protocol': protocol,
+            'classification': classification,
+            'severity': severity
+            }
+        self.event_details = event_details
+        return
+
+    def set_signature_details(self,
+                            sig_id,
+                            sig_type,
+                            sig_rule,
+                            sig_references,
+                            sig_cve,
+                            sig_date):
+
+        sig_details = {
+            'sig_id': sig_id,
+            'sig_type': sig_type,
+            'sig_rule': sig_rule,
+            'sig_reference': list(sig_references),  # list?
+            'sig_cve': sig_cve,
+            'sig_date': sig_date
+            }
+        self.signature_details = sig_details
+
+    def set_payload(self):
+        return EventPayload()
+
+
 
 
 ###############################################################################
