@@ -16,7 +16,7 @@ class Event(AlertLogic):
         self.event_url = url
         self.event_details = '' # object ...change to dict?
         self.signature_details = ''  # object  ...change to dict?
-        self.payload = ''  # object --> EventPayload
+        self.event_payload = ''  # object --> EventPayload
         self.event_summary = ''  # object --> EventsPacketSummary
 
     def set_event_details(self,

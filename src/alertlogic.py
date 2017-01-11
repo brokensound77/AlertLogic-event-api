@@ -17,7 +17,6 @@ class AlertLogic(object):
         self.username = username
         self.password = password
 
-
     def to_json(self):
         return
 

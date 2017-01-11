@@ -9,12 +9,13 @@ import requests
 class Incident(AlertLogic):
     def __init__(self, incident_id, customer_id='all_children'):
         AlertLogic.__init__(self)
-        self.incident_id = incident_id
-        self.customer_id = customer_id
+        self.incident_id = str(incident_id)
+        self.customer_id = str(customer_id)
         self.incident_details = ''  # get_incident_details()
         self.event_ids = ''  # list; retrieved and set in get_incident_details
-        self.events_summary = ''  # {}; 'breakdown': {}, 'summary': object()
-        self.events = ''  # Event class objects
+        self.events = ''  # list; Event class objects; set by get_events()
+        self.events_summary = ''  # dict; 'breakdown': {}, 'summary': object()
+
 
 
     def get_incident_details(self):
@@ -110,21 +111,118 @@ class Incident(AlertLogic):
         except requests.RequestException:
             raise requests.RequestException('An error occurred trying to parse the incident details')
 
+    def get_event(self):
+        pass
+
+    def get_events(self):
+        pass
+
+
 
 
 class EventsPacketSummary(object):
     #  belongs to Events
-    def __init__(self):
+    def __init__(self, events_list):
+        self.events_list = events_list  # this is a list of the events objects; Incidents.events
         self.breakdown = ''  # TODO: rename to breakdown
         self.summary = ''  # object --> PacketSummarySummary
+        self.get_events_info()  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
 
 
-class PacketSummarySummary(object):
+    def get_events_info(self):
+        """Iterates through the event objects and sets the global breakdown to JSON and the global summary to an
+            EventPacketSummary object
+
+            ###########################################################
+            # structure
+            ###########################################################
+            # details: {
+            #   <signatureName>: {
+            #     <hostName>: {
+            #        <responseCode>: [applicableEvents]
+            #            }
+            #         }
+            #   <signatureName>: {
+            #     <hostName>: {
+            #        <responseCode>: [applicableEvents]
+            #            }
+            #         }
+            #     }
+            # summary': {
+            #  'unique_signatures': unique_signatures,
+            #  'unique_hosts': unique_hosts,
+            #  'response_code_tally': response_code_tally
+            #      }
+            ###########################################################
+        """
+        packet_info = {}
+        packet_breakdown = {}
+        unique_signatures = {}  # sig: [sig_applicable_events]
+        unique_hosts = {}  # host: [hosts_applicable_events]
+        response_code_tally = {}  # code: [code_applicable_events]
+        # TODO!! This likely needs work as the summary was overriding itself and only returning final host with this alg
+        for event in self.events_list:  # this is a list of objects
+            # TODO!!! This is obviously not correct and is dependent on the event object structure
+            # TODO: event.event_payload.packet_details  <-- may be packet_details.request and response
+            # do magic to pull out event summary
+                try:
+                    pass
+                    # details
+                    signature = event['details']['signature_name']
+                    host = event['payload']['packet_details']['request_packet']['host']
+                    response = event['payload']['packet_details']['response_packet']['response_code']
+                    event = event['event']
+
+                    if signature not in packet_breakdown.keys():
+                        packet_breakdown[signature] = {host: {response: [event]}}
+                    elif host not in packet_breakdown[signature].keys():
+                        packet_breakdown[signature][host] = {response: [event]}
+                    elif response not in packet_breakdown[signature][host].keys():
+                        packet_breakdown[signature][host][response] = [event]
+                    else:
+                        packet_breakdown[signature][host][response].append(event)
+                except KeyError:
+                    continue  # packet failed to retrieve from get_event
+
+                #######################################################
+                # summary
+                # signatures
+                if signature not in unique_signatures.keys():
+                    unique_signatures[signature] = sig_applicable_events = [event['event']]
+                else:
+                    unique_signatures[signature].append(event['event'])
+                # hosts
+                if host not in unique_hosts.keys():
+                    unique_hosts[host] = hosts_applicable_events = [event['event']]
+                else:
+                    unique_hosts[host].append(event['event'])
+                # response codes
+                if response not in response_code_tally.keys():
+                    response_code_tally[response] = code_applicable_events = [event['event']]
+                else:
+                    response_code_tally[response].append(event['event'])
+            #packet_info = {
+            #    'summary': {
+            #        'unique_signatures': unique_signatures,
+            #        'unique_hosts': unique_hosts,
+            #        'response_code_tally': response_code_tally
+            #        }
+            #    }
+        self.breakdown = packet_breakdown
+        self.summary = EventsSummarySummary(unique_signatures, unique_hosts, response_code_tally)
+
+
+
+        pass  # set EventPacketSummary.summary = PacketSummarySummary()
+
+
+class EventsSummarySummary(object):
     # belongs to EventsPacketSummary
-    def __init__(self):
-        self.unique_signatures = ''  # dict --> sig: event_id
-        self.unique_hosts = ''  # dict --> host: event_id
-        self.response_code_tally = ''  # dict --> code: event_id
+    def __init__(self, unique_sig, unique_host, unique_resp_code):
+        self.unique_signatures = unique_sig  # dict --> sig: event_id
+        self.unique_hosts = unique_host  # dict --> host: event_id
+        self.response_code_tally = unique_resp_code  # dict --> code: event_id
+
 
 
 
