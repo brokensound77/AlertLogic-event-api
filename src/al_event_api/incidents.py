@@ -12,10 +12,10 @@ class Incident(object):
         self.__username = password
         self.__password = api_key
         self.incident_id = incident_id
-        self.create_date = ''
         self.customer_id = customer_id
-        self.incident_details = ''
-        self.events = ''
+        self.incident_details = ''  # get_incident_details()
+        self.event_ids = ''  # list; retrieved and set in get_incident_details
+        self.events = ''  # Event class objects
 
 
     def get_incident_details(self):
@@ -106,6 +106,8 @@ class Incident(object):
             raise NotAuthenticatedError('API Failed to authenticate')
         try:
             self.incident_details = r.json()
+            self.event_ids = list(r.json()[0]['event_ids'])
+            return
         except requests.RequestException:
             raise requests.RequestException('An error occurred trying to parse the incident details')
 
