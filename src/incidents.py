@@ -1,20 +1,19 @@
 
 # TODO:
-from resources import *
+from alertlogic import *
 # Temp!
 #
 import requests
 
 
-class Incident(object):
-    def __init__(self, api_key, username, password, incident_id, customer_id='all_children'):
-        self.__api_key = username
-        self.__username = password
-        self.__password = api_key
+class Incident(AlertLogic):
+    def __init__(self, incident_id, customer_id='all_children'):
+        AlertLogic.__init__(self)
         self.incident_id = incident_id
         self.customer_id = customer_id
         self.incident_details = ''  # get_incident_details()
         self.event_ids = ''  # list; retrieved and set in get_incident_details
+        self.events_summary = ''  # {}; 'breakdown': {}, 'summary': object()
         self.events = ''  # Event class objects
 
 
@@ -116,7 +115,7 @@ class Incident(object):
 class EventsPacketSummary(object):
     #  belongs to Events
     def __init__(self):
-        self.details = ''  # TODO: rename to breakout
+        self.breakdown = ''  # TODO: rename to breakdown
         self.summary = ''  # object --> PacketSummarySummary
 
 

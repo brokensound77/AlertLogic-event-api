@@ -1,6 +1,6 @@
 
 
-from resources import AlertLogic
+from alertlogic import *
 
 def to_json():
     return
@@ -10,7 +10,7 @@ def to_string():
     return
 
 
-class Event(object):
+class Event(AlertLogic):
     def __init__(self, event_id, url, details, signature_details, payload, event_summary):
         self.event_id = event_id
         self.event_url = url
