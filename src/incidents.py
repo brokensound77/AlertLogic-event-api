@@ -150,12 +150,12 @@ class Incident(AlertLogic):
 class EventsPacketSummary(object):
     """Belongs to Incidents.events_summary"""
     def __init__(self, events_list):
-        self.events_list = events_list  # this is a list of the events objects; Incidents.events
+        #self.events_list = events_list  # this is a list of the events objects; Incidents.events
         self.breakdown = ''  # JSON breakdown: signature->host->response_code->[event_ids]
         self.summary = ''  # object --> PacketSummarySummary
-        self.get_events_info()  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
+        self.get_events_info(events_list)  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
 
-    def get_events_info(self):
+    def get_events_info(self, events_list):
         """Iterates through the event objects and sets the global breakdown to JSON and the global summary to an
             EventPacketSummary object
 
@@ -187,7 +187,7 @@ class EventsPacketSummary(object):
         unique_hosts = {}  # host: [hosts_applicable_events]
         response_code_tally = {}  # code: [code_applicable_events]
         # TODO!! This likely needs work as the summary was overriding itself and only returning final host with this alg
-        for event in self.events_list:  # this is a list of objects
+        for event in events_list:  # this is a list of objects
             # TODO!!! This is obviously not correct and is dependent on the event object structure
             # TODO: event.event_payload.packet_details  <-- may be packet_details.request and response
             # do magic to pull out event summary
