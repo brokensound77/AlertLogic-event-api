@@ -10,7 +10,7 @@ def to_string():
     return
 
 
-class Events(object):
+class Event(object):
     def __init__(self, event_id, url, details, signature_details, payload, event_summary):
         self.event_id = event_id
         self.event_url = url

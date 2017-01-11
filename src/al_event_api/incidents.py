@@ -1,38 +1,26 @@
 
 # TODO:
-
+from resources import *
+# Temp!
+#
 import requests
 
-class Incidents(object):
-    def __init__(self):
-        self.incdident_id = ''
+
+class Incident(object):
+    def __init__(self, api_key, username, password):
+        self.__api_key = username
+        self.__username = password
+        self.__password = api_key
+        self.incident_id = ''
         self.create_date = ''
         self.customer_id = ''
         self.incident_details = ''
         self.events = ''
 
 
-    def get_incident_Details(self, customer_id, incident_id, api_key=None, persist=False):
-
-
-        header = {'accept': 'application/json'}
-        url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id=' + incident_id + \
-              '&customer_id=' + customer_id
-        r = requests.get(url, headers=header, auth=(self.__api_key, ''))
-        if r.status_code != 200:
-            raise Exception('Failed to retrieve incident. Status code: {0}\nException: {1}'.format(
-                r.status_code, r.reason))
-        try:
-            #cust_id = str(r.json()[0]['customer_id'])
-            event_list = list(r.json()[0]['event_ids'])
-        except IndexError as e:
-            raise Exception('Events not returned from AL API. Check incident_id.\nException: {0}'.format(e))
-        #if persist: self.event = cust_id, event_list)  # sets global
-        return event_list
-
-        # make api call and return json
-        details = ''
-        '''
+    def get_incident_details(self):
+        """Makes a call to the API in order to set self.incident_details with the incident details. Schema per their
+        site below (as of January 2017):
         [
             {
         "acknowledge_status": "Acknowledged - Completed Analysis",
@@ -108,13 +96,18 @@ class Incidents(object):
                 ]
             }
         ]
-        '''
+        """
 
-
-
-
-        self.incident_details
-
+        header = {'accept': 'application/json'}
+        url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id={0}&customer_id={1}'.format(
+            self.incident_id, self.customer_id) + self.customer_id
+        r = requests.get(url, headers=header, auth=(self.__api_key, ''))
+        if r.status_code != 200:
+            raise NotAuthenticatedError('API Failed to authenticate')
+        try:
+            self.incident_details = r.json()
+        except requests.RequestException:
+            raise requests.RequestException('An error occurred trying to parse the incident details')
 
 
 
@@ -134,10 +127,3 @@ class PacketSummarySummary(object):
 
 
 
-class Error(Exception):
-    """Base class for exceptions in this module"""
-    pass
-
-class TempExampleError(Error):
-    """Placeholder for custom exceptions"""
-    pass
