@@ -1,7 +1,7 @@
 """ Update """
 #TODO: update
 
-
+import threading
 from alertlogic import *
 from events import Event
 
@@ -19,7 +19,7 @@ class Incident(AlertLogic):
         self.event_ids = ''  # list of str; retrieved and set in get_incident_details
         self.login_al()  # authenticates with a session to preserve for event iteration
         self.get_incident_details()  # sets incident_details and event_ids
-        self.events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
+        self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
         self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
 
     def login_al(self):
@@ -137,16 +137,30 @@ class Incident(AlertLogic):
         return Event(event_id, self.customer_id)
 
     def get_event_objects(self):
-        #event_objects_list = []
         event_object_dict = {}
-        for event_id in self.event_ids:
-            #event_objects_list.append(self.get_event_object(event_id))
-            event_object_dict[event_id] = self.get_event_object(event_id)
-        #return event_objects_list
+        #for event_id in self.event_ids:
+        #    event_object_dict[event_id] = self.get_event_object(event_id)
+        #return event_object_dict
+        threads = []
+        errors = []
+
+        def __multi_get_events(thread_event_id):  # for threading
+            try:
+                event_object_dict[thread_event_id] = self.get_event_object(thread_event_id)
+            except Exception as e:
+                errors.append(e.message)
+                pass
+
+        for i in self.event_ids:
+            t = threading.Thread(target=__multi_get_events, args=(i,))
+            threads.append(t)
+            t.start()
+        for _thread in threads:
+            _thread.join()
         return event_object_dict
 
     def get_event_summary(self):
-        return EventsPacketSummary(self.events)
+        return EventsPacketSummary(self.Events)
 
 
 class EventsPacketSummary(object):
@@ -189,26 +203,25 @@ class EventsPacketSummary(object):
         unique_hosts = {}  # host: [hosts_applicable_events]
         response_code_tally = {}  # code: [code_applicable_events]
         # TODO!! This likely needs work as the summary was overriding itself and only returning final host with this alg
-        for event in events_list:  # this is a list of objects
+        for individual_event in events_list.values():  # this is a list of objects
             # TODO!!! This is obviously not correct and is dependent on the event object structure
             # TODO: event.event_payload.packet_details  <-- may be packet_details.request and response
             # do magic to pull out event summary
                 try:
-                    pass
                     # details
-                    signature = event.event_details['signature_name']
-                    host = event.event_payload.packet_details.request_packet.host
-                    response = event.event_payload.packet_details.response_packet.response_code
-                    event = event.event_id
+                    signature = individual_event.event_details['signature_name']
+                    host = individual_event.event_payload.packet_details.request_packet.host
+                    response = individual_event.event_payload.packet_details.response_packet.response_code
+                    individual_event_id = individual_event.event_id
 
                     if signature not in packet_breakdown.keys():
-                        packet_breakdown[signature] = {host: {response: [event]}}
+                        packet_breakdown[signature] = {host: {response: [individual_event_id]}}
                     elif host not in packet_breakdown[signature].keys():
-                        packet_breakdown[signature][host] = {response: [event]}
+                        packet_breakdown[signature][host] = {response: [individual_event_id]}
                     elif response not in packet_breakdown[signature][host].keys():
-                        packet_breakdown[signature][host][response] = [event]
+                        packet_breakdown[signature][host][response] = [individual_event_id]
                     else:
-                        packet_breakdown[signature][host][response].append(event)
+                        packet_breakdown[signature][host][response].append(individual_event_id)
                 except KeyError:
                     continue  # packet failed to retrieve from get_event
 
@@ -216,19 +229,19 @@ class EventsPacketSummary(object):
                 # summary
                 # signatures
                 if signature not in unique_signatures.keys():
-                    unique_signatures[signature] = sig_applicable_events = event.event_id
+                    unique_signatures[signature] = [individual_event_id]
                 else:
-                    unique_signatures[signature].append(event.event_id)
+                    unique_signatures[signature].append(individual_event_id)
                 # hosts
                 if host not in unique_hosts.keys():
-                    unique_hosts[host] = hosts_applicable_events = [event.event_id]
+                    unique_hosts[host] = [individual_event_id]
                 else:
-                    unique_hosts[host].append(event.event_id)
+                    unique_hosts[host].append(individual_event_id)
                 # response codes
                 if response not in response_code_tally.keys():
-                    response_code_tally[response] = code_applicable_events = [event.event_id]
+                    response_code_tally[response] = [individual_event_id]
                 else:
-                    response_code_tally[response].append(event.event_id)
+                    response_code_tally[response].append(individual_event_id)
             #packet_info = {
             #    'summary': {
             #        'unique_signatures': unique_signatures,

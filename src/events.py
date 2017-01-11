@@ -113,12 +113,12 @@ class Event(AlertLogic):
         :param payload (str):
         :return:
         """
-        restful_call = ''
-        protocol = ''
-        host = ''
-        resource = ''
-        response_code = 'None parsed'
-        response_message = 'None parsed'
+        restful_call = 'none_parsed'
+        protocol = 'none_parsed'
+        host = 'none_parsed'
+        resource = 'non_parsed'
+        response_code = 'none_parsed'
+        response_message = 'none_parsed'
         # request
         rex_request = re.search(
             '(?P<restful_call>GET|POST|HEAD|TRACE|PUT)\s(?P<resource>[\S.]*)\s(?P<protocol>\S*)', payload)
@@ -223,7 +223,7 @@ class Event(AlertLogic):
         event_url = 'https://console.clouddefender.alertlogic.com/event.php?id={0}&customer_id={1}&screen={2}&filter_id={3}'.format(
             event_id, customer_id, screen, filter_id)
         self.event_url = event_url  # set global url
-        r = alogic.get(event_url, allow_redirects=False)
+        r = alogic.get(event_url, allow_redirects=False)  #TODO: add exception handling around for requests.exceptions
         # print r.status_code  # TODO: Add some exception handling here...try 3 times??? raise error? skip with message?
         if r.status_code != 200:
             raise NotAuthenticatedError('Failed to retrieve event #{0}. Status code: {1}. Reason: {2}'.format(
