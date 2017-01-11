@@ -8,13 +8,6 @@ import re
 from string import printable
 from alertlogic import *
 
-def to_json():
-    return
-
-
-def to_string():
-    return
-
 
 class Event(AlertLogic):
     def __init__(self, event_id, customer_id):
@@ -22,96 +15,95 @@ class Event(AlertLogic):
         self.event_id = event_id
         self.customer_id = customer_id
         self.event_url = ''  # set in get_event
-        self.event_details = ''  # dict
-        self.signature_details = ''  # dict
+        self.event_details = ''  # dict; set in get_event
+        self.signature_details = ''  # dict; set in get_event
         self.event_payload = ''  # object --> EventPayload
-        self.event_summary = ''  # object --> EventsPacketSummary
         self.get_event()  # triggers process to create this object
 
-        def __get_signature_details(self, sig_id):
-            primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
-            # backup in the event of a permissions issue to the primary url
-            backup_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
+    def __get_signature_details(self, sig_id):
+        primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
+        # backup in the event of a permissions issue to the primary url
+        backup_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
 
-            ################################################################################################################
-            # temporary until the TODO below is resolved
-            ############################################
-            r = self.alogic.get(backup_url)
+        ################################################################################################################
+        # temporary until the TODO below is resolved
+        ############################################
+        r = self.alogic.get(backup_url)
+        winner = 'backup'
+        if r.status_code != 200:
+            return 'Failed to retrieve signature details :('
+
+        # TODO: The primary url will not currently work with the way that Alert Logic implements their webpages because
+        #   the SIDs do not directly align (SID in rule vs SID as they categorize it). Until this is resolved,
+        #   the backup_url will be the only feasible option - thus meaning less data
+        '''
+        r = self.__alogic.get(primary_ur)
+        winner = 'primary'
+        if r.status_code != 200:
+            r = self.__alogic.get(backup_url)
             winner = 'backup'
             if r.status_code != 200:
                 return 'Failed to retrieve signature details :('
+        '''
+        ################################################################################################################
+        ################################################################################################################
 
-            # TODO: The primary url will not currently work with the way that Alert Logic implements their webpages because
-            #   the SIDs do not directly align (SID in rule vs SID as they categorize it). Until this is resolved,
-            #   the backup_url will be the only feasible option - thus meaning less data
-            '''
-            r = self.__alogic.get(primary_ur)
-            winner = 'primary'
-            if r.status_code != 200:
-                r = self.__alogic.get(backup_url)
-                winner = 'backup'
-                if r.status_code != 200:
-                    return 'Failed to retrieve signature details :('
-            '''
-            ################################################################################################################
-            ################################################################################################################
-
-            if winner == 'primary':
-                sig_type = ''
-                sig_rule = ''
-                sig_references = ''
-                sig_cve = ''
-                sig_date = ''
-                # logic for info
-                # TODO: There is a problem with the regex for the sig_cve
-                sig_details_search = re.search('<td>Classtype:\s*</td>[\s\n]+<td>(?P<sig_type>.*)</td>|'
-                                               '<td>Detection:\s*</td>[\s\n]+<td>(?P<sig_rule>.*)</td>|'
-                                               '<td>References:\s*</td>[\s\n]+<td>(?P<sig_references>.*)</td>|'
-                                               '<td>Vulnerabilities:\s*</td>[\s\n]+<td>(?P<sig_cve>.*)[\s\n]*</td>|'
-                                               '<td>Date\sAdded:\s*</td>[\s\n]+<td>(?P<sig_date>.*)</td>', r.text)
-                if sig_details_search is not None:
-                    # TODO: Will need to rework the exception handling logic here!
-                    try:
-                        sig_type = sig_details_search.group('sig_type')
-                    except IndexError:
-                        pass
-                    try:
-                        sig_rule = sig_details_search.group('sig_rule')
-                    except IndexError:
-                        pass
-                    try:
-                        sig_references = sig_details_search.group('sig_references')
-                    except IndexError:
-                        pass
-                    try:
-                        sig_cve = sig_details_search.group('sig_cve')
-                    except IndexError:
-                        pass
-                    try:
-                        sig_date = sig_details_search.group('sig_date')
-                    except IndexError:
-                        pass
-                sig_details = {
-                    'sig_id': sig_id,
-                    'sig_type': sig_type,
-                    'sig_rule': sig_rule,
-                    'sig_references': sig_references,
-                    'sig_cve': sig_cve,
-                    'sig_date': sig_date
-                }
-                return sig_details
-
-            elif winner == 'backup':
-                sig_rule = ''
-                # logic for info
-                sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*)</td>', r.text)
-                if sig_details_search is not None:
+        if winner == 'primary':
+            sig_type = ''
+            sig_rule = ''
+            sig_references = ''
+            sig_cve = ''
+            sig_date = ''
+            # logic for info
+            # TODO: There is a problem with the regex for the sig_cve
+            sig_details_search = re.search('<td>Classtype:\s*</td>[\s\n]+<td>(?P<sig_type>.*)</td>|'
+                                           '<td>Detection:\s*</td>[\s\n]+<td>(?P<sig_rule>.*)</td>|'
+                                           '<td>References:\s*</td>[\s\n]+<td>(?P<sig_references>.*)</td>|'
+                                           '<td>Vulnerabilities:\s*</td>[\s\n]+<td>(?P<sig_cve>.*)[\s\n]*</td>|'
+                                           '<td>Date\sAdded:\s*</td>[\s\n]+<td>(?P<sig_date>.*)</td>', r.text)
+            if sig_details_search is not None:
+                # TODO: Will need to rework the exception handling logic here!
+                try:
+                    sig_type = sig_details_search.group('sig_type')
+                except IndexError:
+                    pass
+                try:
                     sig_rule = sig_details_search.group('sig_rule')
-                sig_details = {
-                    'sig_id': sig_id,
-                    'sig_rule': sig_rule
-                    }
-                return sig_details
+                except IndexError:
+                    pass
+                try:
+                    sig_references = sig_details_search.group('sig_references')
+                except IndexError:
+                    pass
+                try:
+                    sig_cve = sig_details_search.group('sig_cve')
+                except IndexError:
+                    pass
+                try:
+                    sig_date = sig_details_search.group('sig_date')
+                except IndexError:
+                    pass
+            sig_details = {
+                'sig_id': sig_id,
+                'sig_type': sig_type,
+                'sig_rule': sig_rule,
+                'sig_references': sig_references,
+                'sig_cve': sig_cve,
+                'sig_date': sig_date
+            }
+            return sig_details
+
+        elif winner == 'backup':
+            sig_rule = ''
+            # logic for info
+            sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*)</td>', r.text)
+            if sig_details_search is not None:
+                sig_rule = sig_details_search.group('sig_rule')
+            sig_details = {
+                'sig_id': sig_id,
+                'sig_rule': sig_rule
+                }
+            return sig_details
 
     def __packet_analysis(self, payload): #request_payload, response_payload):
         """
@@ -259,12 +251,24 @@ class Event(AlertLogic):
             protocol = rex_results.group('protocol')
             classification = rex_results.group('classification')
             severity = rex_results.group('severity')
+        #  sets details
+        details = {
+            'source_addr': source_address,
+            'dest_addr': dest_address,
+            'source_port': source_port,
+            'dest_port': dest_port,
+            'signature_name': signature_name,
+            'sensor': sensor,
+            'protocol': protocol,
+            'classification': classification,
+            'severity': severity
+        }
         ########################################
         sig_id_search = re.search('<strong><a\shref="/signature.php\?[\w=&]*sid=(?P<sig_id>\d+).+', tmp_raw_page)
         if sig_id_search is not None:
             sig_id = sig_id_search.group('sig_id')
             # TODO: this should break into its own thread that joins right before the full event {} assembly
-            signature_details = self.__get_signature_details(str(sig_id))
+            signature_details = self.__get_signature_details(str(sig_id))  # for global signature details
         ##################################################################
         ##################################################################
         #  The start and end parse are the most susceptible to breaking due to changes by Alert Logic!
@@ -280,145 +284,40 @@ class Event(AlertLogic):
         raw2 = re.findall(r'(?<=0x[\da-fA_F]{4}:\s)\b[\da-fA-F]{4}\b|(?<=[\da-fA-F]{4}\s)\b[\da-fA-F]{4}\b', raw_hex)
         raw3 = ''  # this is the TRUE raw hex of the packets
         for chunk in raw2:
-            raw3 += chunk
+            raw3 += chunk  # true raw hex!
         full_payload1 = '{0}'.format(
             raw3.decode('hex').decode('ascii', 'ignore'))  # what is lost with ignore vs 'replace'
         full_payload = ''.join([c for c in full_payload1 if c in printable])
         packet_details = self.__packet_analysis(full_payload)
         decompressed = self.__gz_handler(event_id, raw3)
-        full_event = {
-            'event': event_id,
-            'url': event_url,
-            'details': {
-                'source_addr': source_address,
-                'dest_addr': dest_address,
-                'source_port': source_port,
-                'dest_port': dest_port,
-                'signature_name': signature_name,
-                'sensor': sensor,
-                'protocol': protocol,
-                'classification': classification,
-                'severity': severity
-            },
-            'signature_details': signature_details,
-            'payload': {
-                'full_payload': full_payload,
-                # 'request':             request_payload, #TODO: maybe
-                # 'response':            response_payload,
-                'packet_details': packet_details,
-                'decompressed': decompressed
-            }
-        }
-        return full_event
-        return
+        self.event_details = details
+        self.signature_details = signature_details
+        self.event_payload = EventPayload(full_payload, decompressed, raw3, packet_details)
 
-
-################
-################
-
-
-    def set_event_details(self,
-                      source_addr,
-                      dest_addr,
-                      source_port,
-                      dest_port,
-                      signature_name,
-                      sensor,
-                      protocol,
-                      classification,
-                      severity):
-
-        event_details = {
-            'source_addr': source_addr,
-            'dest_addr': dest_addr,
-            'source_port': source_port,
-            'dest_port': dest_port,
-            'signature_name': signature_name,
-            'sensor': sensor,
-            'protocol': protocol,
-            'classification': classification,
-            'severity': severity
-            }
-        self.event_details = event_details
-        return
-
-    def set_signature_details(self,
-                            sig_id,
-                            sig_type,
-                            sig_rule,
-                            sig_references,
-                            sig_cve,
-                            sig_date):
-
-        sig_details = {
-            'sig_id': sig_id,
-            'sig_type': sig_type,
-            'sig_rule': sig_rule,
-            'sig_reference': list(sig_references),  # list?
-            'sig_cve': sig_cve,
-            'sig_date': sig_date
-            }
-        self.signature_details = sig_details
-
-    def set_payload(self):
-        return EventPayload()
-
-
-
-
-###############################################################################
-###############################################################################
-
-#TODO!! CHANGED TO DICT
-class EventDetails(object):
-    # convert to list and move to Events??
-    def __init__(self):
-        self.source_addr = ''
-        self.dest_addr = ''
-        self.source_port = ''
-        self.dest_port = ''
-        self.signature_name = ''
-        self.sensor = ''
-        self.protocol = ''
-        self.classification = ''
-        self.severity = ''
-
-
-###############################################################################
-#TODO: CHANGED TO DICT
-class EventSignatureDetais(object):
-    # convert to list and move to Events??
-    def __init__(self):
-        self.sig_id = ''
-        self.sig_type = ''
-        self.sig_rule = ''
-        self.sig_references = ''  # list?
-        self.sig_cve = ''
-        self.sig_date = ''
-
-
-###############################################################################
 
 class EventPayload(object):
-    # belongs to Events
-    def __init__(self):
-        self.full_payload = ''
-        self.decompressed = ''
-        self.raw_hex = ''  # TODO: keep?  # could be useful for signature rule compares
-        self.packet_details = ''  # object --> RequestPacketDetails
+    """Belongs to events"""
+    def __init__(self, full, decompressed, raw, packet_details):
+        self.full_payload = full
+        self.decompressed = decompressed
+        self.raw_hex = raw  # raw hex
+        self.packet_details = packet_details  # for now, just JSON, TODO:object --> breakdown in to req/resp -> RequestPacketDetails
+
+########################################################################################################################
+########################################################################################################################
+
+# TODO: breakout packet details into request and response and implement objects below
 
 
 class PacketDetails(object):
-    # belongs to EventPayload
+    """Belongs to EventPayload"""
     def __init__(self):
         self.request_packet = ''  # object --> RequestPacketDetails
         self.response_packet = ''  # object --> ResponsePacketDetails
 
 
-###############################################################################
-
 class RequestPacketDetails(object):
-    # belongs to PacketDetails
+    """Belongs to PacketDetails"""
     def __init__(self):
         self.restful_call = ''
         self.protocol = ''
@@ -428,7 +327,7 @@ class RequestPacketDetails(object):
 
 
 class ResponsePacketDetails(object):
-    # belongs to PacketDetails
+    """Belongs to PacketDetails"""
     def __init__(self):
         self.response_code = ''
         self.response_message = ''

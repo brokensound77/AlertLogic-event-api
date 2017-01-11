@@ -1,5 +1,6 @@
 import requests
 
+
 class AlertLogic(object):
     """shared attributes with Events and Incidents"""
 
@@ -18,8 +19,6 @@ class AlertLogic(object):
 
     def to_json(self):
         return
-
-
 
 
 class Error(Exception):

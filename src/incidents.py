@@ -1,10 +1,7 @@
 
-# TODO:
+
 from alertlogic import *
 from events import Event
-# Temp!
-#
-import requests
 
 
 class Incident(AlertLogic):
@@ -116,7 +113,7 @@ class Incident(AlertLogic):
         ]
         """
 
-        if self.api_key is None:
+        if self.__api_key is None:
             raise CredentialsNotSet('Missing api key. If not instantiated, set with set_api_key()')
         header = {'accept': 'application/json'}
         url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id={0}&customer_id={1}'.format(
@@ -132,7 +129,7 @@ class Incident(AlertLogic):
             raise requests.RequestException('An error occurred trying to parse the incident details')
 
     def get_event_object(self, event_id):
-        if self.username is None or self.password is None:
+        if self.__username is None or self.__password is None:
             raise CredentialsNotSet('Missing username or password. If not instantiated, set with set_credentials()')
         return Event(event_id, self.customer_id)
 
