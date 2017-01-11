@@ -3,12 +3,10 @@
 class AlertLogic(object):
     """shared attributes with Events and Incidents"""
 
-    def __init__(self):
-        self.__api_key = ''
-        self.__username = ''
-        self.__password = ''
-        #self.set_api_key()
-        #self.set_credentials()
+    def __init__(self, api_key=None, username=None, password=None):
+        self.__api_key = api_key
+        self.__username = username
+        self.__password = password
 
     def set_api_key(self, api_key):
         self.api_key = api_key

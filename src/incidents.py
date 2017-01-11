@@ -1,22 +1,26 @@
 
 # TODO:
 from alertlogic import *
+from events import Event
 # Temp!
 #
 import requests
 
 
 class Incident(AlertLogic):
-    def __init__(self, incident_id, customer_id='all_children'):
-        AlertLogic.__init__(self)
+    """If credentials are not instantiated, then they must be set prior to implementation with set_api_key and
+        set_credentials
+    """
+
+    def __init__(self, incident_id, customer_id='all_children', api_key=None, username=None, password=None):
+        AlertLogic.__init__(self, api_key, username, password)
         self.incident_id = str(incident_id)
-        self.customer_id = str(customer_id)
+        self.customer_id = str(customer_id)  # all_children includes all customer accounts that the caller can access
         self.incident_details = ''  # get_incident_details()
-        self.event_ids = ''  # list; retrieved and set in get_incident_details
-        self.events = ''  # list; Event class objects; set by get_events()
-        self.events_summary = ''  # dict; 'breakdown': {}, 'summary': object()
-
-
+        self.event_ids = ''  # list of str; retrieved and set in get_incident_details
+        self.get_incident_details()  # sets incident_details and event_ids
+        self.events = self.get_events()  # list; Event class objects; set by get_events()
+        self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()
 
     def get_incident_details(self):
         """Makes a call to the API in order to set self.incident_details with the incident details. Schema per their
@@ -111,20 +115,27 @@ class Incident(AlertLogic):
         except requests.RequestException:
             raise requests.RequestException('An error occurred trying to parse the incident details')
 
-    def get_event(self):
+    def get_event(self, event_id):
         pass
+        #return Event.
 
     def get_events(self):
-        pass
+        for event_id in self.event_ids:
+            self.get_event(event_id)
+        return
+
+    def get_event_summary(self):
+        return EventsPacketSummary(self.events)
+
 
 
 
 
 class EventsPacketSummary(object):
-    #  belongs to Events
+    """Belongs to Incidents.events_summary"""
     def __init__(self, events_list):
         self.events_list = events_list  # this is a list of the events objects; Incidents.events
-        self.breakdown = ''  # TODO: rename to breakdown
+        self.breakdown = ''  # JSON breakdown: signature->host->response_code->[event_ids]
         self.summary = ''  # object --> PacketSummarySummary
         self.get_events_info()  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
 
@@ -155,7 +166,7 @@ class EventsPacketSummary(object):
             #      }
             ###########################################################
         """
-        packet_info = {}
+        #packet_info = {}  TODO:remove!
         packet_breakdown = {}
         unique_signatures = {}  # sig: [sig_applicable_events]
         unique_hosts = {}  # host: [hosts_applicable_events]
