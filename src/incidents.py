@@ -19,8 +19,22 @@ class Incident(AlertLogic):
         self.incident_details = ''  # get_incident_details()
         self.event_ids = ''  # list of str; retrieved and set in get_incident_details
         self.get_incident_details()  # sets incident_details and event_ids
-        self.events = self.get_events()  # list; Event class objects; set by get_events()
+        self.events = self.get_event_objects()  # list; Event class objects; set by get_events()
         self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()
+
+    def __login_al(self, al_un, al_pw):
+        login_params = {#'SMENC': 'ISO-8859-1',
+                        'SMLOCALE': 'US-EN',
+                        'target': '-SM-/',
+                        'SMAUTHREASON': 0,
+                        'user': al_un,
+                        'password': al_pw
+                        }
+        r = self.alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
+        if r.status_code != 200:
+            raise NotAuthenticatedError('Failed to authenticate with username and password. Status code: {0}\n'
+                                        'Exception: {1}'.format(r.status_code, r.reason))
+        return
 
     def get_incident_details(self):
         """Makes a call to the API in order to set self.incident_details with the incident details. Schema per their
@@ -102,6 +116,8 @@ class Incident(AlertLogic):
         ]
         """
 
+        if self.api_key is None:
+            raise CredentialsNotSet('Missing api key. If not instantiated, set with set_api_key()')
         header = {'accept': 'application/json'}
         url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id={0}&customer_id={1}'.format(
             self.incident_id, self.customer_id) + self.customer_id
@@ -115,20 +131,19 @@ class Incident(AlertLogic):
         except requests.RequestException:
             raise requests.RequestException('An error occurred trying to parse the incident details')
 
-    def get_event(self, event_id):
-        pass
-        #return Event.
+    def get_event_object(self, event_id):
+        if self.username is None or self.password is None:
+            raise CredentialsNotSet('Missing username or password. If not instantiated, set with set_credentials()')
+        return Event(event_id, self.customer_id)
 
-    def get_events(self):
+    def get_event_objects(self):
+        event_objects_list = []
         for event_id in self.event_ids:
-            self.get_event(event_id)
-        return
+            self.get_event_object(event_id)
+        return event_objects_list
 
     def get_event_summary(self):
         return EventsPacketSummary(self.events)
-
-
-
 
 
 class EventsPacketSummary(object):
@@ -138,7 +153,6 @@ class EventsPacketSummary(object):
         self.breakdown = ''  # JSON breakdown: signature->host->response_code->[event_ids]
         self.summary = ''  # object --> PacketSummarySummary
         self.get_events_info()  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
-
 
     def get_events_info(self):
         """Iterates through the event objects and sets the global breakdown to JSON and the global summary to an
@@ -223,17 +237,9 @@ class EventsPacketSummary(object):
         self.summary = EventsSummarySummary(unique_signatures, unique_hosts, response_code_tally)
 
 
-
-        pass  # set EventPacketSummary.summary = PacketSummarySummary()
-
-
 class EventsSummarySummary(object):
     # belongs to EventsPacketSummary
     def __init__(self, unique_sig, unique_host, unique_resp_code):
         self.unique_signatures = unique_sig  # dict --> sig: event_id
         self.unique_hosts = unique_host  # dict --> host: event_id
         self.response_code_tally = unique_resp_code  # dict --> code: event_id
-
-
-
-

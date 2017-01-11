@@ -1,4 +1,4 @@
-
+import requests
 
 class AlertLogic(object):
     """shared attributes with Events and Incidents"""
@@ -7,6 +7,7 @@ class AlertLogic(object):
         self.__api_key = api_key
         self.__username = username
         self.__password = password
+        self.alogic = requests.Session
 
     def set_api_key(self, api_key):
         self.api_key = api_key
@@ -30,6 +31,5 @@ class NotAuthenticatedError(Error):
     """Raise when a non 200 is returned"""
 
 
-class TempExampleError(Error):
-    """Placeholder for custom exceptions"""
-    pass
+class CredentialsNotSet(Error):
+    """Placeholder for missing credentials"""
