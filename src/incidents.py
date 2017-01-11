@@ -15,19 +15,20 @@ class Incident(AlertLogic):
         self.customer_id = str(customer_id)  # all_children includes all customer accounts that the caller can access
         self.incident_details = ''  # get_incident_details()
         self.event_ids = ''  # list of str; retrieved and set in get_incident_details
+        self.login_al()
         self.get_incident_details()  # sets incident_details and event_ids
         self.events = self.get_event_objects()  # list; Event class objects; set by get_events()
         self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()
 
-    def __login_al(self, al_un, al_pw):
+    def login_al(self):
         login_params = {#'SMENC': 'ISO-8859-1',
                         'SMLOCALE': 'US-EN',
                         'target': '-SM-/',
                         'SMAUTHREASON': 0,
-                        'user': al_un,
-                        'password': al_pw
+                        'user': self.username,
+                        'password': self.password
                         }
-        r = self.alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
+        r = alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
         if r.status_code != 200:
             raise NotAuthenticatedError('Failed to authenticate with username and password. Status code: {0}\n'
                                         'Exception: {1}'.format(r.status_code, r.reason))
@@ -113,12 +114,12 @@ class Incident(AlertLogic):
         ]
         """
 
-        if self.__api_key is None:
+        if self.api_key is None:
             raise CredentialsNotSet('Missing api key. If not instantiated, set with set_api_key()')
         header = {'accept': 'application/json'}
         url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id={0}&customer_id={1}'.format(
-            self.incident_id, self.customer_id) + self.customer_id
-        r = requests.get(url, headers=header, auth=(self.__api_key, ''))
+            self.incident_id, self.customer_id)
+        r = requests.get(url, headers=header, auth=(self.api_key, ''))
         if r.status_code != 200:
             raise NotAuthenticatedError('API Failed to authenticate')
         try:
@@ -129,15 +130,18 @@ class Incident(AlertLogic):
             raise requests.RequestException('An error occurred trying to parse the incident details')
 
     def get_event_object(self, event_id):
-        if self.__username is None or self.__password is None:
+        if self.username is None or self.password is None:
             raise CredentialsNotSet('Missing username or password. If not instantiated, set with set_credentials()')
         return Event(event_id, self.customer_id)
 
     def get_event_objects(self):
-        event_objects_list = []
+        #event_objects_list = []
+        event_object_dict = {}
         for event_id in self.event_ids:
-            self.get_event_object(event_id)
-        return event_objects_list
+            #event_objects_list.append(self.get_event_object(event_id))
+            event_object_dict[event_id] = self.get_event_object(event_id)
+        #return event_objects_list
+        return event_object_dict
 
     def get_event_summary(self):
         return EventsPacketSummary(self.events)

@@ -28,7 +28,7 @@ class Event(AlertLogic):
         ################################################################################################################
         # temporary until the TODO below is resolved
         ############################################
-        r = self.alogic.get(backup_url)
+        r = alogic.get(backup_url)
         winner = 'backup'
         if r.status_code != 200:
             return 'Failed to retrieve signature details :('
@@ -221,7 +221,7 @@ class Event(AlertLogic):
         event_url = 'https://console.clouddefender.alertlogic.com/event.php?id={0}&customer_id={1}&screen={2}&filter_id={3}'.format(
             event_id, customer_id, screen, filter_id)
         self.event_url = event_url  # set global url
-        r = self.alogic.get(event_url, allow_redirects=False)
+        r = alogic.get(event_url, allow_redirects=False)
         # print r.status_code  # TODO: Add some exception handling here...try 3 times??? raise error? skip with message?
         if r.status_code != 200:
             raise NotAuthenticatedError('Failed to retrieve event #{0}. Status code: {1}. Reason: {2}'.format(
@@ -297,39 +297,43 @@ class Event(AlertLogic):
 
 class EventPayload(object):
     """Belongs to events"""
-    def __init__(self, full, decompressed, raw, packet_details):
+    def __init__(self, full, decompressed, raw, packet_details_json):
         self.full_payload = full
         self.decompressed = decompressed
         self.raw_hex = raw  # raw hex
-        self.packet_details = packet_details  # for now, just JSON, TODO:object --> breakdown in to req/resp -> RequestPacketDetails
+        self.packet_details = self.get_packet_details(packet_details_json)
 
-########################################################################################################################
-########################################################################################################################
 
-# TODO: breakout packet details into request and response and implement objects below
+    def get_packet_details(self, packet_details_json):
+        return PacketDetails(packet_details_json)
 
 
 class PacketDetails(object):
     """Belongs to EventPayload"""
-    def __init__(self):
+    def __init__(self, packet_details_json):
         self.request_packet = ''  # object --> RequestPacketDetails
         self.response_packet = ''  # object --> ResponsePacketDetails
+        self.disect_packet_details(packet_details_json)
+
+    def disect_packet_details(self, packet_details_json):
+        request_pack = packet_details_json['request_packet']
+        response_pack = packet_details_json['response_packet']
+        self.request_packet = RequestPacketDetails(request_pack)
+        self.response_packet = ResponsePacketDetails(response_pack)
 
 
 class RequestPacketDetails(object):
     """Belongs to PacketDetails"""
-    def __init__(self):
-        self.restful_call = ''
-        self.protocol = ''
-        self.host = ''
-        self.resource = ''
-        self.full_url = ''
+    def __init__(self, request_dict):
+        self.restful_call = request_dict['restful_call']
+        self.protocol = request_dict['protocol']
+        self.host = request_dict['host']
+        self.resource = request_dict['resource']
+        self.full_url = request_dict['full_url']
 
 
 class ResponsePacketDetails(object):
     """Belongs to PacketDetails"""
-    def __init__(self):
-        self.response_code = ''
-        self.response_message = ''
-
-
+    def __init__(self, response_dict):
+        self.response_code = response_dict['response_code']
+        self.response_message = response_dict['response_message']

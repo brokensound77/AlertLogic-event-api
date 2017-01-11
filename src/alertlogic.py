@@ -1,14 +1,17 @@
 import requests
 
+# persistent session across all sub-classes; not instantiated within the class because this was breaking the session at
+# re-instantiation within each individual Event object
+alogic = requests.Session()
+
 
 class AlertLogic(object):
     """shared attributes with Events and Incidents"""
 
     def __init__(self, api_key=None, username=None, password=None):
-        self.__api_key = api_key
-        self.__username = username
-        self.__password = password
-        self.alogic = requests.Session
+        self.api_key = api_key
+        self.username = username
+        self.password = password
 
     def set_api_key(self, api_key):
         self.api_key = api_key
@@ -17,13 +20,15 @@ class AlertLogic(object):
         self.username = username
         self.password = password
 
+    def create_requests_session(self):
+        self.alogic = requests.Session()
+
     def to_json(self):
         return
 
 
 class Error(Exception):
     """Base class for exceptions in this module"""
-    pass
 
 
 class NotAuthenticatedError(Error):
