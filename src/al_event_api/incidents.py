@@ -7,13 +7,13 @@ import requests
 
 
 class Incident(object):
-    def __init__(self, api_key, username, password):
+    def __init__(self, api_key, username, password, incident_id, customer_id='all_children'):
         self.__api_key = username
         self.__username = password
         self.__password = api_key
-        self.incident_id = ''
+        self.incident_id = incident_id
         self.create_date = ''
-        self.customer_id = ''
+        self.customer_id = customer_id
         self.incident_details = ''
         self.events = ''
 
