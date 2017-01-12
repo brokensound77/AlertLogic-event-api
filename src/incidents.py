@@ -8,7 +8,8 @@ from events import Event
 
 class Incident(AlertLogic):
     """If credentials are not instantiated, then they must be set prior to implementation with set_api_key and
-        set_credentials
+        set_credentials. This is the primary object of this API. Incident is comprised of all the details which
+        encompass an Incident, to include Event objects. For
     """
 
     def __init__(self, incident_id, customer_id='all_children', api_key=None, username=None, password=None):
