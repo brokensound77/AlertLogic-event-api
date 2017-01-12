@@ -33,7 +33,7 @@ class Event(AlertLogic):
                         self.event_id, self.event_url,
                         pp.pformat(self.event_details),
                         pp.pformat(self.signature_details),
-                        pp.pformat(self.event_payload)))
+                        self.__getattribute__('event_payload')))
         return to_string
 
     def __get_signature_details(self, sig_id):
@@ -321,6 +321,12 @@ class EventPayload(object):
         self.raw_hex = raw  # raw hex
         self.packet_details = self.get_packet_details(packet_details_json)  #TODO: capitalize object
 
+    def __str__(self):
+        to_string = ('Packet Details: \n{0}\n'
+                     'Full Payload: \n{1}'.format(self.packet_details, self.full_payload))
+        if self.decompressed != '':
+            to_string += '\nDecompressed Data: \n{0}'.format(self.decompressed)
+        return to_string
 
     def get_packet_details(self, packet_details_json):
         return PacketDetails(packet_details_json)
@@ -332,6 +338,11 @@ class PacketDetails(object):
         self.request_packet = ''  # object --> RequestPacketDetails  #TODO: capitalize object
         self.response_packet = ''  # object --> ResponsePacketDetails  #TODO: capitalize object
         self.disect_packet_details(packet_details_json)
+
+    def __str__(self):
+        to_string = ('Request Packet: \n{0}\n'
+                     'Response Packet: \n{1}'.format(self.request_packet, self.response_packet))
+        return to_string
 
     def disect_packet_details(self, packet_details_json):
         request_pack = packet_details_json['request_packet']
@@ -349,9 +360,22 @@ class RequestPacketDetails(object):
         self.resource = request_dict['resource']
         self.full_url = request_dict['full_url']
 
+    def __str__(self):
+        to_string = ('Restful Call: {0}\n'
+                     'Protocol: {1}\n'
+                     'Host: {2}\n'
+                     'Resource: {3}\n'
+                     'Full URL: {4}'.format(self.restful_call, self.protocol, self.host, self.resource, self.full_url))
+        return to_string
+
 
 class ResponsePacketDetails(object):
     """Belongs to PacketDetails"""
     def __init__(self, response_dict):
         self.response_code = response_dict['response_code']
         self.response_message = response_dict['response_message']
+
+    def __str__(self):
+        to_string = ('Response Code: {0}\n'
+                     'Response Message: {1}'.format(self.response_code, self.response_message))
+        return to_string

@@ -28,8 +28,8 @@ class Incident(AlertLogic):
     def __str__(self):
         pp = pprint.PrettyPrinter(indent=4)
         event_string = ''
-        for item in self.Events.values():
-            event_string += '{0}\n'.format(item)
+        for item in self.Events:
+            event_string += '{0}\n\n'.format(self.Events[item])
         to_string = ('Customer ID: {0}\n'
                      'Incident ID: {1}\n'
                      'Incident Details: \n{2}\n'
