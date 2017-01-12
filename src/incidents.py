@@ -142,7 +142,7 @@ class Incident(AlertLogic):
         #    event_object_dict[event_id] = self.get_event_object(event_id)
         #return event_object_dict
         threads = []
-        errors = []
+        errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
 
         def __multi_get_events(thread_event_id):  # for threading
             try:

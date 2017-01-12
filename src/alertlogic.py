@@ -23,20 +23,24 @@ class AlertLogic(object):
         self.username = username
         self.password = password
 
-    def create_requests_session(self):
+    def create_requests_session(self):  # TODO: This likely needs to go away; Session is created outside of the class
         self.alogic = requests.Session()
 
     def to_json(self):
         return
 
 
-class Error(Exception):
+class AlApiError(Exception):
     """Base class for exceptions in this module"""
 
 
-class NotAuthenticatedError(Error):
+class NotAuthenticatedError(AlApiError):
     """Raise when a non 200 is returned"""
 
 
-class CredentialsNotSet(Error):
+class CredentialsNotSet(AlApiError):
     """Placeholder for missing credentials"""
+
+
+class EventNotRetrievedError(AlApiError):
+    """Failed to retrieve event; most often because of authentication"""

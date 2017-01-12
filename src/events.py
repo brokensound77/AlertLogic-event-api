@@ -264,8 +264,10 @@ class Event(AlertLogic):
             'protocol': protocol,
             'classification': classification,
             'severity': severity
-        }
-        ########################################
+            }
+        ###################################################################
+        # REGEX Signature Details
+        ###################################################################
         sig_id_search = re.search('<strong><a\shref="/signature.php\?[\w=&]*sid=(?P<sig_id>\d+).+', tmp_raw_page)
         if sig_id_search is not None:
             sig_id = sig_id_search.group('sig_id')
