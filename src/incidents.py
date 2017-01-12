@@ -17,10 +17,12 @@ class Incident(AlertLogic):
         self.customer_id = str(customer_id)  # all_children includes all customer accounts that the caller can access
         self.incident_details = ''  # JSON; get_incident_details()
         self.event_ids = ''  # list of str; retrieved and set in get_incident_details
-        self.login_al()  # authenticates with a session to preserve for event iteration
-        self.get_incident_details()  # sets incident_details and event_ids
-        self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
-        self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
+        if self.api_key is not None:
+            self.get_incident_details()  # sets incident_details and event_ids
+        if username is not None and password is not None:
+            self.login_al()  # authenticates with a session to preserve for event iteration
+            self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
+            self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
 
     def login_al(self):
         login_params = {#'SMENC': 'ISO-8859-1',
