@@ -129,7 +129,7 @@ class Incident(AlertLogic):
             self.event_ids = list(r.json()[0]['event_ids'])
             return
         except requests.RequestException:
-            raise requests.RequestException('An error occurred trying to parse the incident details')
+            raise requests.RequestException('An error occurred trying to parse the incident details from "requests"')
 
     def get_event_object(self, event_id):
         if self.username is None or self.password is None:
