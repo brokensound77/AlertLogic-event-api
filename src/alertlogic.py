@@ -2,6 +2,7 @@
 #TODO: update
 
 import requests
+from errors import *
 
 # persistent session across all sub-classes; not instantiated within the class because this was breaking the session at
 # re-instantiation within each individual Event object
@@ -30,17 +31,3 @@ class AlertLogic(object):
         return
 
 
-class AlApiError(Exception):
-    """Base class for exceptions in this module"""
-
-
-class NotAuthenticatedError(AlApiError):
-    """Raise when a non 200 is returned"""
-
-
-class CredentialsNotSet(AlApiError):
-    """Placeholder for missing credentials"""
-
-
-class EventNotRetrievedError(AlApiError):
-    """Failed to retrieve event; most often because of authentication"""

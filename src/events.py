@@ -7,6 +7,7 @@ import gzip
 import subprocess
 import os
 import re
+import pprint
 from string import printable
 from alertlogic import *
 
@@ -21,6 +22,19 @@ class Event(AlertLogic):
         self.signature_details = ''  # dict; set in get_event
         self.event_payload = ''  # object --> EventPayload  #TODO: capitalize object
         self.get_event()  # triggers process to create this object
+
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        to_string = ('Event ID: {0}\n'
+                     'Event Link: \n{1}\n'
+                     'Event Details: \n{2}\n'
+                     'Signature Details: \n{3}\n'
+                     'Event Payload: \n{4}'.format(
+                        self.event_id, self.event_url,
+                        pp.pformat(self.event_details),
+                        pp.pformat(self.signature_details),
+                        pp.pformat(self.event_payload)))
+        return to_string
 
     def __get_signature_details(self, sig_id):
         primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)

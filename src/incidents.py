@@ -4,6 +4,7 @@
 import threading
 from alertlogic import *
 from events import Event
+import pprint
 
 
 class Incident(AlertLogic):
@@ -23,6 +24,20 @@ class Incident(AlertLogic):
             self.login_al()  # authenticates with a session to preserve for event iteration
             self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
             self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
+
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        event_string = ''
+        for item in self.Events.values():
+            event_string += '{0}\n'.format(item)
+        to_string = ('Customer ID: {0}\n'
+                     'Incident ID: {1}\n'
+                     'Incident Details: \n{2}\n'
+                     'Summary of Events: \n{3}\n'
+                     'Events: \n{4}'.format(
+                        self.customer_id, self.incident_id, pp.pformat(self.incident_details), self.events_summary,
+                        event_string))
+        return to_string
 
     def login_al(self):
         login_params = {#'SMENC': 'ISO-8859-1',
@@ -173,6 +188,12 @@ class EventsPacketSummary(object):
         self.summary = ''  # object --> PacketSummarySummary
         self.get_events_info(events_list)  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
 
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        to_string = ('Summary Breakdown: \n{0}\n'
+                     'Summary: \n{1}'.format(pp.pformat(self.breakdown), self.summary))
+        return to_string
+
     def get_events_info(self, events_list):
         """Iterates through the event objects and sets the global breakdown to JSON and the global summary to an
             EventPacketSummary object
@@ -261,3 +282,13 @@ class EventsSummarySummary(object):
         self.unique_signatures = unique_sig  # dict --> sig: event_id
         self.unique_hosts = unique_host  # dict --> host: event_id
         self.response_code_tally = unique_resp_code  # dict --> code: event_id
+
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        to_string = ('Unique Signatures: \n{0}\n'
+                     'Unique Hosts: \n{1}\n'
+                     'Response Code Tally: {2}'.format(
+                        pp.pformat(self.unique_signatures),
+                        pp.pformat(self.unique_hosts),
+                        pp.pformat(self.response_code_tally)))
+        return to_string
