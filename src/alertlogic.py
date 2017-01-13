@@ -5,6 +5,7 @@
 #TODO: update
 
 import requests
+from errors import *
 
 # persistent session across all sub-classes; not instantiated within the class because this was breaking the session at
 # re-instantiation within each individual Event object
@@ -26,20 +27,10 @@ class AlertLogic(object):
         self.username = username
         self.password = password
 
-    def create_requests_session(self):
+    def create_requests_session(self):  # TODO: This likely needs to go away; Session is created outside of the class
         self.alogic = requests.Session()
 
     def to_json(self):
         return
 
 
-class Error(Exception):
-    """Base class for exceptions in this module"""
-
-
-class NotAuthenticatedError(Error):
-    """Raise when a non 200 is returned"""
-
-
-class CredentialsNotSet(Error):
-    """Placeholder for missing credentials"""

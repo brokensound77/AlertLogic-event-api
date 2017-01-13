@@ -4,6 +4,7 @@
 import threading
 from alertlogic import *
 from events import Event
+import pprint
 
 
 class Incident(AlertLogic):
@@ -18,10 +19,26 @@ class Incident(AlertLogic):
         self.customer_id = str(customer_id)  # all_children includes all customer accounts that the caller can access
         self.incident_details = ''  # JSON; get_incident_details()
         self.event_ids = ''  # list of str; retrieved and set in get_incident_details
-        self.login_al()  # authenticates with a session to preserve for event iteration
-        self.get_incident_details()  # sets incident_details and event_ids
-        self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
-        self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
+        if self.api_key is not None:
+            self.get_incident_details()  # sets incident_details and event_ids
+        if username is not None and password is not None:
+            self.login_al()  # authenticates with a session to preserve for event iteration
+            self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
+            self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
+
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        event_string = ''
+        for item in self.Events:
+            event_string += '{0}\n\n'.format(self.Events[item])
+        to_string = ('Customer ID: {0}\n'
+                     'Incident ID: {1}\n'
+                     'Incident Details: \n{2}\n'
+                     'Summary of Events: \n{3}\n'
+                     'Events: \n{4}'.format(
+                        self.customer_id, self.incident_id, pp.pformat(self.incident_details), self.events_summary,
+                        event_string))
+        return to_string
 
     def login_al(self):
         login_params = {#'SMENC': 'ISO-8859-1',
@@ -130,7 +147,7 @@ class Incident(AlertLogic):
             self.event_ids = list(r.json()[0]['event_ids'])
             return
         except requests.RequestException:
-            raise requests.RequestException('An error occurred trying to parse the incident details')
+            raise requests.RequestException('An error occurred trying to parse the incident details from "requests"')
 
     def get_event_object(self, event_id):
         if self.username is None or self.password is None:
@@ -143,7 +160,7 @@ class Incident(AlertLogic):
         #    event_object_dict[event_id] = self.get_event_object(event_id)
         #return event_object_dict
         threads = []
-        errors = []
+        errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
 
         def __multi_get_events(thread_event_id):  # for threading
             try:
@@ -171,6 +188,12 @@ class EventsPacketSummary(object):
         self.breakdown = ''  # JSON breakdown: signature->host->response_code->[event_ids]
         self.summary = ''  # object --> PacketSummarySummary
         self.get_events_info(events_list)  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
+
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        to_string = ('Summary Breakdown: \n{0}\n'
+                     'Summary: \n{1}'.format(pp.pformat(self.breakdown), self.summary))
+        return to_string
 
     def get_events_info(self, events_list):
         """Iterates through the event objects and sets the global breakdown to JSON and the global summary to an
@@ -260,3 +283,13 @@ class EventsSummarySummary(object):
         self.unique_signatures = unique_sig  # dict --> sig: event_id
         self.unique_hosts = unique_host  # dict --> host: event_id
         self.response_code_tally = unique_resp_code  # dict --> code: event_id
+
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        to_string = ('Unique Signatures: \n{0}\n'
+                     'Unique Hosts: \n{1}\n'
+                     'Response Code Tally: {2}'.format(
+                        pp.pformat(self.unique_signatures),
+                        pp.pformat(self.unique_hosts),
+                        pp.pformat(self.response_code_tally)))
+        return to_string

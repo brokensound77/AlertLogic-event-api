@@ -7,6 +7,7 @@ import gzip
 import subprocess
 import os
 import re
+import pprint
 from string import printable
 from alertlogic import *
 
@@ -21,6 +22,19 @@ class Event(AlertLogic):
         self.signature_details = ''  # dict; set in get_event
         self.event_payload = ''  # object --> EventPayload  #TODO: capitalize object
         self.get_event()  # triggers process to create this object
+
+    def __str__(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        to_string = ('Event ID: {0}\n'
+                     'Event Link: \n{1}\n'
+                     'Event Details: \n{2}\n'
+                     'Signature Details: \n{3}\n'
+                     'Event Payload: \n{4}'.format(
+                        self.event_id, self.event_url,
+                        pp.pformat(self.event_details),
+                        pp.pformat(self.signature_details),
+                        self.__getattribute__('event_payload')))
+        return to_string
 
     def __get_signature_details(self, sig_id):
         primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
@@ -264,8 +278,10 @@ class Event(AlertLogic):
             'protocol': protocol,
             'classification': classification,
             'severity': severity
-        }
-        ########################################
+            }
+        ###################################################################
+        # REGEX Signature Details
+        ###################################################################
         sig_id_search = re.search('<strong><a\shref="/signature.php\?[\w=&]*sid=(?P<sig_id>\d+).+', tmp_raw_page)
         if sig_id_search is not None:
             sig_id = sig_id_search.group('sig_id')
@@ -305,6 +321,12 @@ class EventPayload(object):
         self.raw_hex = raw  # raw hex
         self.packet_details = self.get_packet_details(packet_details_json)  #TODO: capitalize object
 
+    def __str__(self):
+        to_string = ('Packet Details: \n{0}\n'
+                     'Full Payload: \n{1}'.format(self.packet_details, self.full_payload))
+        if self.decompressed != '':
+            to_string += '\nDecompressed Data: \n{0}'.format(self.decompressed)
+        return to_string
 
     def get_packet_details(self, packet_details_json):
         return PacketDetails(packet_details_json)
@@ -316,6 +338,11 @@ class PacketDetails(object):
         self.request_packet = ''  # object --> RequestPacketDetails  #TODO: capitalize object
         self.response_packet = ''  # object --> ResponsePacketDetails  #TODO: capitalize object
         self.disect_packet_details(packet_details_json)
+
+    def __str__(self):
+        to_string = ('Request Packet: \n{0}\n'
+                     'Response Packet: \n{1}'.format(self.request_packet, self.response_packet))
+        return to_string
 
     def disect_packet_details(self, packet_details_json):
         request_pack = packet_details_json['request_packet']
@@ -333,9 +360,22 @@ class RequestPacketDetails(object):
         self.resource = request_dict['resource']
         self.full_url = request_dict['full_url']
 
+    def __str__(self):
+        to_string = ('Restful Call: {0}\n'
+                     'Protocol: {1}\n'
+                     'Host: {2}\n'
+                     'Resource: {3}\n'
+                     'Full URL: {4}'.format(self.restful_call, self.protocol, self.host, self.resource, self.full_url))
+        return to_string
+
 
 class ResponsePacketDetails(object):
     """Belongs to PacketDetails"""
     def __init__(self, response_dict):
         self.response_code = response_dict['response_code']
         self.response_message = response_dict['response_message']
+
+    def __str__(self):
+        to_string = ('Response Code: {0}\n'
+                     'Response Message: {1}'.format(self.response_code, self.response_message))
+        return to_string
