@@ -63,7 +63,7 @@ class Event(AlertLogic):
         ################################################################################################################
         # temporary until the TODO below is resolved
         ############################################
-        r = alogic.get(backup_url)
+        r = AlertLogic.alogic.get(backup_url)
         winner = 'backup'
         if r.status_code != 200:
             return 'Failed to retrieve signature details :('
@@ -72,7 +72,7 @@ class Event(AlertLogic):
         #   the SIDs do not directly align (SID in rule vs SID as they categorize it). Until this is resolved,
         #   the backup_url will be the only feasible option - thus meaning less data
         '''
-        r = self.__alogic.get(primary_ur)
+        r = AlertLogic.alogic.get(primary_ur)
         winner = 'primary'
         if r.status_code != 200:
             r = self.__alogic.get(backup_url)
@@ -258,7 +258,7 @@ class Event(AlertLogic):
         event_url = 'https://console.clouddefender.alertlogic.com/event.php?id={0}&customer_id={1}&screen={2}&filter_id={3}'.format(
             event_id, customer_id, screen, filter_id)
         self.event_url = event_url  # set global url
-        r = alogic.get(event_url, allow_redirects=False)  #TODO: add exception handling around for requests.exceptions
+        r = AlertLogic.alogic.get(event_url, allow_redirects=False)  #TODO: add exception handling around for requests.exceptions
         if r.status_code != 200:
             raise NotAuthenticatedError('Failed to retrieve event #{0}. Status code: {1}. Reason: {2}'.format(
                 event_id, r.status_code, r.reason))
@@ -305,7 +305,7 @@ class Event(AlertLogic):
         sig_id_search = re.search('<strong><a\shref="/signature.php\?[\w=&]*sid=(?P<sig_id>\d+).+', tmp_raw_page)
         if sig_id_search is not None:
             sig_id = sig_id_search.group('sig_id')
-            # TODO: this should break into its own thread that joins right before the full event {} assembly
+            # TODO: this should break into its own thread that joins right before the full event {} assembly; maybe
             signature_details = self.__get_signature_details(str(sig_id))  # for global signature details
         ##################################################################
         ##################################################################

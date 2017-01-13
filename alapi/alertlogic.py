@@ -6,9 +6,6 @@
 import requests
 from errors import *
 
-# persistent session across all sub-classes; not instantiated within the class because this was breaking the session at
-# re-instantiation within each individual Event object
-alogic = requests.Session()
 
 class ALCommon(object):
     """class for shared attributes across all classes"""
@@ -18,22 +15,13 @@ class ALCommon(object):
         return
 
 
-
 class AlertLogic(ALCommon):
     """Shared attributes with Events and Incidents; primarily credentials"""
     api_key = None
     username = None
     password = None
-    al_logged_in = False
-
-    def __init__(self):#, api_key=None, username=None, password=None):
-        #self.api_key = api_key
-        #self.username = username
-        #self.password = password
-        #AlertLogic.api_key = api_key
-        #AlertLogic.username = username
-        #AlertLogic.password = password
-        pass
+    al_logged_in = False         # allows sub classes to detect if a log-in was already initiated
+    alogic = requests.Session()  # persistent session across all sub-classes
 
     def set_api_key(self, api_key):
         AlertLogic.api_key = api_key
@@ -55,7 +43,7 @@ class AlertLogic(ALCommon):
                         'user': AlertLogic.username,
                         'password': AlertLogic.password
                         }
-        r = alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
+        r = AlertLogic.alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
         if r.status_code != 200:
             raise NotAuthenticatedError('Failed to authenticate with username and password. Status code: {0}\n'
                                         'Exception: {1}'.format(r.status_code, r.reason))
