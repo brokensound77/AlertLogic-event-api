@@ -223,6 +223,94 @@ class AlPseudoAPI(object):
         ###########################################################
         return packet_info
 
+    def __get_signature_details(self, sig_id):
+        primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
+        # backup in the event of a permissions issue to the primary url
+        backup_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
+
+        ################################################################################################################
+        # temporary until the TODO below is resolved
+        ############################################
+
+        r = self.__alogic.get(backup_url)
+        winner = 'backup'
+        if r.status_code != 200:
+            return 'Failed to retrieve signature details :('
+
+        # TODO: The primary url will not currently work with the way that Alert Logic implements their webpages because
+        #   the SIDs do not directly align (SID in rule vs SID as they categorize it). Until this is resolved,
+        #   the backup_url will be the only feasible option - thus meaning less data
+        '''
+        r = self.__alogic.get(primary_ur)
+        winner = 'primary'
+        if r.status_code != 200:
+            r = self.__alogic.get(backup_url)
+            winner = 'backup'
+            if r.status_code != 200:
+                return 'Failed to retrieve signature details :('
+        '''
+        ################################################################################################################
+        ################################################################################################################
+
+        if winner == 'primary':
+            sig_type = ''
+            sig_rule = ''
+            sig_references = ''
+            sig_cve = ''
+            sig_date = ''
+            # logic for info
+            # TODO: There is a problem with the regex for the sig_cve
+            sig_details_search = re.search('<td>Classtype:\s*</td>[\s\n]+<td>(?P<sig_type>.*)</td>|'
+                                           '<td>Detection:\s*</td>[\s\n]+<td>(?P<sig_rule>.*)</td>|'
+                                           '<td>References:\s*</td>[\s\n]+<td>(?P<sig_references>.*)</td>|'
+                                           '<td>Vulnerabilities:\s*</td>[\s\n]+<td>(?P<sig_cve>.*)[\s\n]*</td>|'
+                                           '<td>Date\sAdded:\s*</td>[\s\n]+<td>(?P<sig_date>.*)</td>', r.text)
+            if sig_details_search is not None:
+                # TODO: Will need to rework the exception handling logic here!
+                try:
+                    sig_type = sig_details_search.group('sig_type')
+                except IndexError:
+                    pass
+                try:
+                    sig_rule = sig_details_search.group('sig_rule')
+                except IndexError:
+                    pass
+                try:
+                    sig_references = sig_details_search.group('sig_references')
+                except IndexError:
+                    pass
+                try:
+                    sig_cve = sig_details_search.group('sig_cve')
+                except IndexError:
+                    pass
+                try:
+                    sig_date = sig_details_search.group('sig_date')
+                except IndexError:
+                    pass
+
+            sig_details = {
+                'sig_id': sig_id,
+                'sig_type': sig_type,
+                'sig_rule': sig_rule,
+                'sig_references': sig_references,
+                'sig_cve': sig_cve,
+                'sig_date': sig_date
+            }
+            return sig_details
+
+        elif winner == 'backup':
+            sig_rule = ''
+            # logic for info
+            sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*)</td>', r.text)
+            if sig_details_search is not None:
+                sig_rule = sig_details_search.group('sig_rule')
+
+            sig_details = {
+                'sig_id': sig_id,
+                'sig_rule': sig_rule
+                }
+            return sig_details
+
     def set_event(self, customer_id, event_number):
         self.event = self.get_event(customer_id, event_number)
 
@@ -246,6 +334,7 @@ class AlPseudoAPI(object):
         the payload data. Returns
         """
         full_event = {}
+        signature_details = {}
         source_address = ''
         dest_address = ''
         source_port = ''
@@ -271,7 +360,7 @@ class AlPseudoAPI(object):
                 event_id, r.status_code, r.reason))
         tmp_raw_page = str(r.text)
         ###################################################################
-        # REGEX
+        # REGEX Event Details
         ###################################################################
         rex = re.compile(
             "var source_addr = '(?P<source_address>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})';\n" +
@@ -294,6 +383,12 @@ class AlPseudoAPI(object):
             protocol = rex_results.group('protocol')
             classification = rex_results.group('classification')
             severity = rex_results.group('severity')
+        ########################################
+        sig_id_search = re.search('<strong><a\shref="/signature.php\?[\w=&]*sid=(?P<sig_id>\d+).+', tmp_raw_page)
+        if sig_id_search is not None:
+            sig_id = sig_id_search.group('sig_id')
+            # TODO: this should break into its own thread that joins right before the full event {} assembly
+            signature_details = self.__get_signature_details(str(sig_id))
         ##################################################################
         ##################################################################
         start_parse = str(r.text).find('<td>Signature: ') - 18
@@ -314,37 +409,40 @@ class AlPseudoAPI(object):
         packet_details = self.__packet_analysis(full_payload)
         decompressed = self.__gz_handler(event_id, raw3)
         full_event = {
-            'event':                event_id,
-            'url':                  event_url,
+            'event':                    event_id,
+            'url':                      event_url,
             'details': {
-                'source_addr':      source_address,
-                'dest_addr':        dest_address,
-                'source_port':      source_port,
-                'dest_port':        dest_port,
-                'signature_name':   signature_name,
-                'sensor':           sensor,
-                'protocol':         protocol,
-                'classification':   classification,
-                'severity':         severity
+                'source_addr':          source_address,
+                'dest_addr':            dest_address,
+                'source_port':          source_port,
+                'dest_port':            dest_port,
+                'signature_name':       signature_name,
+                'sensor':               sensor,
+                'protocol':             protocol,
+                'classification':       classification,
+                'severity':             severity
                 },
+            'signature_details': signature_details,
             'payload': {
-                'full_payload': full_payload,
-                #'request':          request_payload, #TODO: maybe
-                #'response':         response_payload,
-                'packet_details':   packet_details,
-                'decompressed':     decompressed
+                'full_payload':         full_payload,
+                #'request':             request_payload, #TODO: maybe
+                #'response':            response_payload,
+                'packet_details':       packet_details,
+                'decompressed':         decompressed
                 }
             }
         return full_event
 
-    def get_events(self, customer_id, event_list, summary=False):
+    def get_events(self, customer_id, event_list, summary=False, suppress_errors=True):
         """
-        Iterates (threaded) through all of the events provided. If analyze is set to true, analysis data is sent in a
-            JSON structure as the second item of a tuple. Exceptions are stored in an 'errors' list
+        Iterates (threaded) through all of the events provided. If summary is set to true, then return data is sent in
+            a JSON structure or else just a list of event JSON will be returned
         :param customer_id:
         :param event_list:
         :param summary: setting this to true will execute summary analystics on all of the packets and return a tuple
             of the list of events and a json object of the analysis
+        :param suppress_errors: by default, errors for events which failed to retreive will be suppressed. If set to
+            false, then an exception will be raised with all of the failed events
         :return:
         """
         local_events = []
@@ -364,9 +462,12 @@ class AlPseudoAPI(object):
             t.start()
         for _thread in threads:
             _thread.join()
+        if not suppress_errors:
+            raise Exception('Their were errors receiving some events: {0}'.format(errors))
         if summary:
-            packet_analysis = self.__packet_summary(local_events)
-            return local_events, packet_analysis
+            data_structure = self.__packet_summary(local_events)
+            data_structure['events'] = local_events
+            return data_structure
         else:
             return local_events
 

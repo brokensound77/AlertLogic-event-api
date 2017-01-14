@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name='AlertLogic_event_api',
-    version='1.1.1',
+    version='1.2.1',
     packages=['al_event_api'],
     package_dir={'': 'src'},
     url='https://github.com/brokensound77/AlertLogic-event-api',
