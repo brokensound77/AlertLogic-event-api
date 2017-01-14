@@ -9,7 +9,22 @@ It is advisable to install within a virtualenv
 
 ##Simple usage:
 ```python
-from al_event_api import AlPseudoAPI
+from src import al_api
+
+incident = al_api.Incident(incident_id, customer_id, api_key, username, password)
+print incident
+```
+Example output (with dummy data) included - [sample_output](https://github.com/brokensound77/AlertLogic-event-api/blob/development_version2_oop/sample_output.md)
+
+for full API documentation, refer to the wiki (coming soon)
+__________________
+#Using the old API 
+__________________
+(now v1_api)
+
+##Simple usage:
+```python
+from v1_api import AlPseudoAPI
 
 AlertLogic = AlPseudoAPI(username, password)
 ```
