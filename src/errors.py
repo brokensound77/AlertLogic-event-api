@@ -1,4 +1,4 @@
-"""Custome errors"""
+"""Custom errors"""
 
 
 class AlApiError(Exception):
