@@ -156,9 +156,6 @@ class Incident(AlertLogic):
 
     def get_event_objects(self):
         event_object_dict = {}
-        #for event_id in self.event_ids:
-        #    event_object_dict[event_id] = self.get_event_object(event_id)
-        #return event_object_dict
         threads = []
         errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
 
@@ -221,7 +218,6 @@ class EventsPacketSummary(object):
             #      }
             ###########################################################
         """
-        #packet_info = {}  TODO:remove!
         packet_breakdown = {}
         unique_signatures = {}  # sig: [sig_applicable_events]
         unique_hosts = {}  # host: [hosts_applicable_events]

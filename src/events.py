@@ -21,7 +21,8 @@ class Event(AlertLogic):
         self.event_details = ''  # dict; set in get_event
         self.signature_details = ''  # dict; set in get_event
         self.event_payload = ''  # object --> EventPayload  #TODO: capitalize object
-        self.get_event()  # triggers process to create this object
+        if AlertLogic.__getattribute__(self, 'username') is not None and AlertLogic.__getattribute__(self, 'password') is not None:
+            self.get_event()  # triggers process to create this object
 
     def __str__(self):
         pp = pprint.PrettyPrinter(indent=4)
