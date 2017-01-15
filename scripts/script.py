@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 """ Script to query the API directly for """
 
+# Author: Justin Ibarra (justin.s.ibarra@gmail.com)
+# License: MIT - A full copy of the license is provided with this source code
+
 import argparse
 import ConfigParser
-import src.alapi as al_api
+from alapi import alapi
 
 description = ('This script is used to implement the al_api in a quick manner. The script will run on the incident'
                'provided and will return only those events matching ALL the parameters passed. The default is to print'
@@ -27,4 +30,4 @@ parser.add_argument('-erc', '--event_response_code')
 parser.add_argument('-esid', '--event_signature_id')
 args = parser.parse_args()
 
-incident = al_api.Incident(args.incident_id, args.customer_id, args.api_key, args.username, args.password)
+incident = alapi.Incident(args.incident_id, args.customer_id, args.api_key, args.username, args.password)

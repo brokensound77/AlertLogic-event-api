@@ -4,7 +4,7 @@ import pprint
 import argparse
 from getpass import getpass
 try:
-    from al_event_api import AlPseudoAPI
+    from v1api import AlPseudoAPI
 except ImportError:
     print 'Cannot import api'
     exit()
