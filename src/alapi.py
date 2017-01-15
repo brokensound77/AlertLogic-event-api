@@ -17,7 +17,7 @@ def get_event(event_id, customer_id, username, password):
 def get_events(event_id_list, customer_id, username, password, suppress_errors=True):
     event_dict = {}
     threads = []
-    errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
+    errors = []
 
     def __multi_get_events(thread_event_id):  # for threading
         try:
@@ -44,7 +44,7 @@ def get_incident(incident_id, customer_id, api_key, username, password):
 def get_incidents(incident_id_list, customer_id, api_key, username, password, suppress_errors=True):
     incident_dict = {}
     threads = []
-    errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
+    errors = []
 
     def __multi_get_incidents(thread_incident_id):  # for threading
         try:
