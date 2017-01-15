@@ -3,6 +3,10 @@ All events and incidents can be directly retrieved or set as objects. Must insta
 password and can optionally pass an API key as well (for incident API interaction). If the API key is not passed, it
 can be subsequently set using the set_api_key method.
 """
+
+# Author: Justin Ibarra (justin.s.ibarra@gmail.com)
+# License: MIT - A full copy of the license is provided with this source code
+
 import requests
 #from bs4 import BeautifulSoup
 import re
