@@ -1,7 +1,7 @@
 """ Alert Logic Event API """
 
-# Author: Justin Ibarra
-# License: MIT
+# Author: Justin Ibarra (justin.s.ibarra@gmail.com)
+# License: MIT - A full copy of the license is provided with this source code
 
 from incidents import Incident, Event, threading
 from errors import IncidentNotRetrievedError, EventNotRetrievedError
