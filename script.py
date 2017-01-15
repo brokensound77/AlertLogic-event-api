@@ -2,6 +2,7 @@
 """ Script to query the API directly for """
 
 import argparse
+import ConfigParser
 import src.alapi as al_api
 
 description = ('This script is used to implement the al_api in a quick manner. The script will run on the incident'
