@@ -18,14 +18,14 @@ class Event(AlertLogic):
         AlertLogic.__init__(self)
         self.event_id = event_id
         self.customer_id = customer_id
-        self.event_url = ''  # set in get_event
-        self.event_details = {}  # dict; set in get_event
+        self.event_url = ''          # set in get_event
+        self.event_details = {}      # dict; set in get_event
         self.signature_details = {}  # dict; set in get_event
-        self.event_payload = ''  # object --> EventPayload  #TODO: capitalize object
+        self.event_payload = ''      # object --> EventPayload  #TODO: capitalize object
         if self.username is None or self.password is None and (username is not None and password is not None):
             AlertLogic.set_credentials(self, username, password)
         if self.username is not None and self.password is not None:
-            self.get_event()  # triggers process to create this object
+            self.get_event()         # triggers process to create this object
 
     def __str__(self):
         pp = pprint.PrettyPrinter(indent=4)
