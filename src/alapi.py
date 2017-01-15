@@ -1,7 +1,12 @@
+""" Alert Logic Event API """
+
+# Author: Justin Ibarra
+# License: MIT
+
 from incidents import Incident, Event, threading
+from errors import IncidentNotRetrievedError, EventNotRetrievedError
 
 
-# placeholder for possible implementation
 def get_event(event_id, customer_id, username, password):
     event = Event(event_id, customer_id)
     event.set_credentials(username, password)
@@ -9,7 +14,7 @@ def get_event(event_id, customer_id, username, password):
     return event
 
 
-def get_events(event_id_list, customer_id, username, password, surppress=True):
+def get_events(event_id_list, customer_id, username, password, suppress_errors=True):
     event_dict = {}
     threads = []
     errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
@@ -27,15 +32,16 @@ def get_events(event_id_list, customer_id, username, password, surppress=True):
         t.start()
     for _thread in threads:
         _thread.join()
+    if not suppress_errors:
+        raise EventNotRetrievedError('Their were errors retrieving some events: {0}'.format(errors))
     return event_dict
 
 
-# placeholder for possible implementation
 def get_incident(incident_id, customer_id, api_key, username, password):
     return Incident(incident_id, customer_id, api_key, username, password)
 
 
-def get_incidents(incident_id_list, customer_id, api_key, username, password, surppress=True):
+def get_incidents(incident_id_list, customer_id, api_key, username, password, suppress_errors=True):
     incident_dict = {}
     threads = []
     errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
@@ -53,4 +59,6 @@ def get_incidents(incident_id_list, customer_id, api_key, username, password, su
         t.start()
     for _thread in threads:
         _thread.join()
+    if not suppress_errors:
+        raise IncidentNotRetrievedError('Their were errors retrieving some incidents: {0}'.format(errors))
     return incident_dict

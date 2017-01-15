@@ -15,3 +15,6 @@ class CredentialsNotSet(AlApiError):
 
 class EventNotRetrievedError(AlApiError):
     """Failed to retrieve event; most often because of authentication"""
+
+class IncidentNotRetrievedError(AlApiError):
+    """Failed to retrieve incident; most often because of authentication"""
