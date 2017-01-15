@@ -6,6 +6,7 @@ import time
 import gzip
 import subprocess
 import os
+import sys
 import re
 import pprint
 from string import printable
@@ -13,15 +14,16 @@ from alertlogic import *
 
 
 class Event(AlertLogic):
-    def __init__(self, event_id, customer_id):
+    def __init__(self, event_id, customer_id, username=None, password=None):
         AlertLogic.__init__(self)
         self.event_id = event_id
         self.customer_id = customer_id
         self.event_url = ''  # set in get_event
-        self.event_details = ''  # dict; set in get_event
-        self.signature_details = ''  # dict; set in get_event
+        self.event_details = {}  # dict; set in get_event
+        self.signature_details = {}  # dict; set in get_event
         self.event_payload = ''  # object --> EventPayload  #TODO: capitalize object
-        if AlertLogic.__getattribute__(self, 'username') is not None and AlertLogic.__getattribute__(self, 'password') is not None:
+        if (self.username is not None and self.password is not None) or (username is not None and password is not None):
+            AlertLogic.set_credentials(self, username, password)
             self.get_event()  # triggers process to create this object
 
     def __str__(self):
@@ -192,6 +194,9 @@ class Event(AlertLogic):
             #decompressed_data += gz_handler.read()
             #return decompressed_data
         #############################################
+        if sys.platform != 'linux2':
+            decompressed_data += '\nCurrently only able to decompress data on linux...\n'
+            return decompressed_data
         tmp_file_name = '/tmp/{0}_{1}.tmp'.format(event_id, time.time())  # unique name prevents overriding with threading
         with open(tmp_file_name, 'wb') as outfile:
             outfile.write(hold_bin)
@@ -203,7 +208,7 @@ class Event(AlertLogic):
             output = subprocess.Popen(["zcat", tmp_file_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if output is None:
                 # log error message with output[1]
-                decompressed_data += '\n[!] Something went wrong with zcat output - check event'
+                decompressed_data += '\n[!] Something went wrong with zcat output - check event\n'
             else:
                 decompressed_data += output[0]
         if os.path.exists(tmp_file_name):

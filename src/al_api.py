@@ -5,7 +5,8 @@ from incidents import Incident, Event, threading
 def get_event(event_id, customer_id, username, password):
     event = Event(event_id, customer_id)
     event.set_credentials(username, password)
-    return event.get_event()
+    event.get_event()
+    return event
 
 
 def get_events(event_id_list, customer_id, username, password, surppress=True):
@@ -34,7 +35,7 @@ def get_incident(incident_id, customer_id, api_key, username, password):
     return Incident(incident_id, customer_id, api_key, username, password)
 
 
-def get_incidetnts(incident_id_list, customer_id, api_key, username, password, surppress=True):
+def get_incidents(incident_id_list, customer_id, api_key, username, password, surppress=True):
     incident_dict = {}
     threads = []
     errors = []  # TODO: How to handle errors collected? Use suppress flag? Auto-inclusion in the dict?
