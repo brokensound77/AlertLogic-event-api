@@ -2,7 +2,7 @@
 """ Script to query the API directly for """
 
 import argparse
-import src.al_api as al_api
+import src.alapi as al_api
 
 description = ('This script is used to implement the al_api in a quick manner. The script will run on the incident'
                'provided and will return only those events matching ALL the parameters passed. The default is to print'

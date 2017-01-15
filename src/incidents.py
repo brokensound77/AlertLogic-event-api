@@ -19,11 +19,13 @@ class Incident(AlertLogic):
         self.customer_id = str(customer_id)     # all_children includes all accounts that the caller can access
         self.incident_details = ''              # JSON; get_incident_details()
         self.event_ids = ''                     # list of str; retrieved and set in get_incident_details
-        if self.api_key is not None or api_key is not None:
+        if self.api_key is None and api_key is not None:
             AlertLogic.set_api_key(self, api_key)
-            self.get_incident_details()         # sets incident_details and event_ids
-        if (self.username is not None and self.password is not None) or (username is not None and password is not None):
+        if self.api_key is not None:
+                self.get_incident_details()         # sets incident_details and event_ids
+        if self.username is None or self.password is None and (username is not None and password is not None):
             AlertLogic.set_credentials(self, username, password)
+        if self.username is not None and self.password is not None:
             self.login_al()                     # authenticates with a session to preserve for event iteration
             self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize object
             self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize object
