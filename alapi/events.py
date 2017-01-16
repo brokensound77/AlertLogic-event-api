@@ -10,6 +10,7 @@ import sys
 import re
 import pprint
 from string import printable
+from HTMLParser import HTMLParser
 from alertlogic import *
 
 
@@ -41,6 +42,7 @@ class Event(AlertLogic):
         return to_string
 
     def __get_signature_details(self, sig_id):
+        parse_html = HTMLParser()
         primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
         # backup in the event of a permissions issue to the primary url
         backup_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
@@ -118,10 +120,11 @@ class Event(AlertLogic):
             # logic for info
             sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*)</td>', r.text)
             if sig_details_search is not None:
-                sig_rule = str(sig_details_search.group('sig_rule'))
+                sig_rule_dirty = sig_details_search.group('sig_rule')
+                sig_rule = parse_html.unescape(sig_rule_dirty).replace('<br />', '')
             sig_details = {
                 'sig_id': sig_id,
-                'sig_rule': sig_rule
+                'sig_rule': str(sig_rule)
                 }
             return sig_details
 
