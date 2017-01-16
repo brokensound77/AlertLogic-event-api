@@ -8,8 +8,8 @@ import argparse
 import ConfigParser
 from alapi import alapi
 
-description = ('This script is used to implement the al_api in a quick manner. The script will run on the incident'
-               'provided and will return only those events matching ALL the parameters passed. The default is to print'
+description = ('This script is used to implement the al_api in a quick manner. The script will run on the incident '
+               'provided and will return only those events matching ALL the parameters passed. The default is to print '
                'out these events.')
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('incident_id', help='AL incident id')
