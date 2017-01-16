@@ -1,5 +1,6 @@
-""" Update """
-#TODO: update
+""" Primary Incident class which extends the AlertLogic class and is comprised of multiple Event objects as well as
+    additional summary and context information.
+ """
 
 import threading
 from alertlogic import *
@@ -8,9 +9,9 @@ import pprint
 
 
 class Incident(AlertLogic):
-    """If credentials are not instantiated, then they must be set prior to implementation with set_api_key and
+    """ If credentials are not instantiated, then they must be set prior to implementation with set_api_key and
         set_credentials. This is the primary object of this API. Incident is comprised of all the details which
-        encompass an Incident, to include Event objects. For
+        encompass an Incident, to include Event objects.
     """
 
     def __init__(self, incident_id, customer_id='all_children', api_key=None, username=None, password=None):
@@ -61,7 +62,7 @@ class Incident(AlertLogic):
     def get_incident_details(self):
         """Makes a call to the API in order to set self.incident_details with the incident details. Schema per their
         site below (as of January 2017):
-        [
+
             {
         "acknowledge_status": "Acknowledged - Completed Analysis",
         "acknowledged_by": 12345,
@@ -76,7 +77,18 @@ class Incident(AlertLogic):
         "created_by": 0,
         "customer_id": 01234,
         "customer_name": "ABC Company, inc.",
-        "description": "**Attack Detail**:  \n**Attacker Location:** 192.168.0.0, Ukraine  \n**Targeted Server**: 10.0.0.0\n\nWe have detected a recon attack against your web application using known malicious SQL commands.  These attacks are designed to map your database and attempt to steal user and company data. We have not detected any indication of success or progress. If we do the incident will evolve up and be escalated to an Analyst for further review.  \n\n**Remediation Recommendation:**  \nIf this is not expected traffic you should block the scanning IP address at your perimeter firewall.\nWhen designing your SQL database and front end application it's best to follow the below procedures to minimize the risk.  \n\nSQL Primary Defenses:\n \n* Review use of Prepared Statements (Parameterized Queries) \n* Review use of Stored Procedures \n* Escaping all User Supplied Input\n* Avoid disclosing error information \n \n[OWASP SQL Injection Cheat Sheet](https://www.owasp.org/index.php/SQL\\_Injection\\_Prevention\\_Cheat\\_Sheet) \n",
+        "description": "**Attack Detail**:  \n**Attacker Location:** 192.168.0.0, Ukraine  \n**Targeted Server**:
+                        10.0.0.0\n\nWe have detected a recon attack against your web application using known malicious
+                        SQL commands.  These attacks are designed to map your database and attempt to steal user and
+                        company data. We have not detected any indication of success or progress. If we do the incident
+                        will evolve up and be escalated to an Analyst for further review.  \n\n**Remediation
+                        Recommendation:**  \nIf this is not expected traffic you should block the scanning IP address
+                        at your perimeter firewall.\nWhen designing your SQL database and front end application it's
+                        best to follow the below procedures to minimize the risk.  \n\nSQL Primary Defenses:\n \n*
+                        Review use of Prepared Statements (Parameterized Queries) \n* Review use of Stored Procedures
+                        \n* Escaping all User Supplied Input\n* Avoid disclosing error information \n \n[OWASP SQL
+                        Injection Cheat Sheet]
+                        (https://www.owasp.org/index.php/SQL\\_Injection\\_Prevention\\_Cheat\\_Sheet) \n",
         "end_date": 1426513500,
         "evolution_root": 1111111,
         "evolution_tree": {
@@ -135,7 +147,6 @@ class Incident(AlertLogic):
             1234488
                 ]
             }
-        ]
         """
 
         if self.api_key is None:
@@ -147,10 +158,10 @@ class Incident(AlertLogic):
         if r.status_code != 200:
             raise NotAuthenticatedError('API Failed to authenticate')
         try:
-            self.incident_details = r.json()
+            self.incident_details = r.json()[0]
             self.event_ids = list(r.json()[0]['event_ids'])
             return
-        except requests.RequestException:
+        except requests.RequestException:  # TODO: add IndexError too?
             raise requests.RequestException('An error occurred trying to parse the incident details from "requests"')
 
     def get_event_object(self, event_id):
@@ -185,10 +196,9 @@ class Incident(AlertLogic):
 class EventsPacketSummary(object):
     """Belongs to Incidents.events_summary"""
     def __init__(self, events_list):
-        #self.events_list = events_list  # this is a list of the events objects; Incidents.events
-        self.breakdown = ''  # JSON breakdown: signature->host->response_code->[event_ids]
-        self.summary = ''  # object --> PacketSummarySummary
-        self.get_events_info(events_list)  # sets breakdown to JSON amd summary to a list of EventsPacketSummary objects
+        self.breakdown = ''                 # JSON breakdown: signature->host->response_code->[event_ids]
+        self.summary = ''                   # object --> PacketSummarySummary
+        self.get_events_info(events_list)   # breakdown to JSON amd summary to a list of EventsPacketSummary objects
 
     def __str__(self):
         pp = pprint.PrettyPrinter(indent=4)
@@ -223,16 +233,14 @@ class EventsPacketSummary(object):
             ###########################################################
         """
         packet_breakdown = {}
-        unique_signatures = {}  # sig: [sig_applicable_events]
-        unique_hosts = {}  # host: [hosts_applicable_events]
-        response_code_tally = {}  # code: [code_applicable_events]
+        unique_signatures = {}      # sig: [sig_applicable_events]
+        unique_hosts = {}           # host: [hosts_applicable_events]
+        response_code_tally = {}    # code: [code_applicable_events]
         # TODO!! This likely needs work as the summary was overriding itself and only returning final host with this alg
         for individual_event in events_list.values():  # this is a list of objects
-            # TODO!!! This is obviously not correct and is dependent on the event object structure
-            # TODO: event.event_payload.packet_details  <-- may be packet_details.request and response
             # do magic to pull out event summary
                 try:
-                    # details
+                    # *details*
                     signature = individual_event.event_details['signature_name']
                     host = individual_event.event_payload.packet_details.request_packet.host
                     response = individual_event.event_payload.packet_details.response_packet.response_code
@@ -250,7 +258,7 @@ class EventsPacketSummary(object):
                     continue  # packet failed to retrieve from get_event
 
                 #######################################################
-                # summary
+                # *summary*
                 # signatures
                 if signature not in unique_signatures.keys():
                     unique_signatures[signature] = [individual_event_id]
@@ -266,22 +274,16 @@ class EventsPacketSummary(object):
                     response_code_tally[response] = [individual_event_id]
                 else:
                     response_code_tally[response].append(individual_event_id)
-            #packet_info = {
-            #    'summary': {
-            #        'unique_signatures': unique_signatures,
-            #        'unique_hosts': unique_hosts,
-            #        'response_code_tally': response_code_tally
-            #        }
-            #    }
+        #####################################################################
         self.breakdown = packet_breakdown
         self.summary = EventsSummarySummary(unique_signatures, unique_hosts, response_code_tally)
 
 
 class EventsSummarySummary(object):
-    # belongs to EventsPacketSummary
+    """ belongs to EventsPacketSummary """
     def __init__(self, unique_sig, unique_host, unique_resp_code):
-        self.unique_signatures = unique_sig  # dict --> sig: event_id
-        self.unique_hosts = unique_host  # dict --> host: event_id
+        self.unique_signatures = unique_sig          # dict --> sig: event_id
+        self.unique_hosts = unique_host              # dict --> host: event_id
         self.response_code_tally = unique_resp_code  # dict --> code: event_id
 
     def __str__(self):

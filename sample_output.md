@@ -1,8 +1,12 @@
-```
-Customer ID: 123456
-Incident ID: 987654321
+The output below is a representation of what is output when printing an
+Incident object. Everything contained as a diff add is what is provided
+additionally by this api directly
+
+```diff
++Customer ID: 123456
++Incident ID: 987654321
 Incident Details: 
-[   {   u'acknowledge_status': u'Acknowledged - Completed Analysis',
+    {   u'acknowledge_status': u'Acknowledged - Completed Analysis',
         u'acknowledged_by': 11111,
         u'acknowledged_date': 1484229335,
         u'attackers': [u'12.34.56.78'],
@@ -47,218 +51,218 @@ Incident Details:
         u'summary': u'Joomla 0Day Serialized Object Injection RCE from 12.34.56.78\n',
         u'threat_rating': u'Medium',
         u'vector': {   u'sub_type': u'joomlaua', u'type': u'webapp_attack'},
-        u'victims': [u'10.11.12.13']}]
+        u'victims': [u'10.11.12.13']}
 
-Summary of Events 
-	Summary Breakdown: 
-{   'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt': {   'www.example.com': {   '200': [ 13579,
-																														24680]}}}
-	Totals: 
-		Unique Signatures: 
-	{   'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt': [ 13579,
-																						  24680]}
-		Unique Hosts: 
-	{   'www.example.com': [13579, 24680]}
-		Response Code Tally: {   '200': [13579, 2468]}
-
-Events: 
-Event ID: 13579
-Event Link: 
-https://url.for.alertlogic.com/event.php?id=XXXXX&customer_id=XXXXXX&screen=event_monitor&filter_id=0
-Event Details: 
-{   'classification': 'web-application-attack',
-    'dest_addr': '10.11.12.13',
-    'dest_port': '80',
-    'protocol': 'tcp',
-    'sensor': 'widget-computer-1',
-    'severity': '0',
-    'signature_name': 'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt',
-    'source_addr': '12.34.56.78',
-    'source_port': '28790'}
-Signature Details: 
-{   'sig_id': '100213',
-    'sig_rule': 'alert tcp $EXTERNAL_NET any -&gt; $HTTP_SERVERS $HTTP_PORTS (msg:&quot;AL Joomla<br />User Agent/XFF Header Serialized Object Injection RCE 0day Attempt&quot;;<br />flow:to_server,established; content:&quot;}__&quot;; http_header;<br />content:&quot;O:21:|22|JDatabaseDriverMysqli|22|&quot;; http_header;<br />content:&quot;O:17:|22|JSimplepieFactory|22|&quot;; http_header;<br />reference:url,freebuf.com/vuls/89754.html; classtype:web-application-attack;<br />sid:1100085;  tag:session,5,packets; rev:1;)'}
-Event Payload: 
-	Packet Details: 
-		Request Packet: 
-			Restful Call: GET
-			Protocol: HTTP/1.1
-			Host: example.com
-			Resource: /example
-			Full URL: example.com/example/
-		Response Packet: 
-			Response Code: 200
-			Response Message: OK
-Full Payload: 
-
-GET / HTTP/1.1
-Host: example.com
-Connection: Keep-Alive
-Accept-Encoding: gzip
-CF-IPCountry: US
-X-Forwarded-For: 24.68.10.10
-X-Forwarded-Proto: http
-Accept: */*
-User-Agent: I-swear-I-am-not-using-python-to-scan-you
-
-HTTP/1.1 200 OK
-Server: nginx
-Date: Thu, 22 Mar 2015 11:41:11 GMT
-Content-Type: text/html
-Transfer-Encoding: chunked
-Connection: keep-alive
-Set-Cookie: example_init=0; expires=Fri, 12-Mar-2015 13:45:51 GMT; path=/; domain=example.com
-X-Powered-By: PleskLin
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Example Domain</title>
-
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">
-    body {
-        background-color: #f0f0f2;
-        margin: 0;
-        padding: 0;
-        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        
-    }
-    div {
-        width: 600px;
-        margin: 5em auto;
-        padding: 50px;
-        background-color: #fff;
-        border-radius: 1em;
-    }
-    a:link, a:visited {
-        color: #38488f;
-        text-decoration: none;
-    }
-    @media (max-width: 700px) {
-        body {
-            background-color: #fff;
-        }
-        div {
-            width: auto;
-            margin: 0 auto;
-            border-radius: 0;
-            padding: 1em;
-        }
-    }
-    </style>    
-</head>
-
-<body>
-<div>
-    <h1>Example Domain</h1>
-    <p>This domain is established to be used for illustrative examples in documents. You may use this
-    domain in examples without prior coordination or asking for permission.</p>
-    <p><a href="http://www.iana.org/domains/example">More information...</a></p>
-</div>
-</body>
-</html>
-
-
-
-Event ID: 2468
-Event Link: 
-https://url.for.alertlogic.com/event.php?id=XXXXX&customer_id=XXXXXX&screen=event_monitor&filter_id=0
-Event Details: 
-{   'classification': 'web-application-attack',
-    'dest_addr': '10.11.12.13',
-    'dest_port': '80',
-    'protocol': 'tcp',
-    'sensor': 'widget-computer-1',
-    'severity': '0',
-    'signature_name': 'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt',
-    'source_addr': '12.34.56.78',
-    'source_port': '28790'}
-Signature Details: 
-{   'sig_id': '100213',
-    'sig_rule': 'alert tcp $EXTERNAL_NET any -&gt; $HTTP_SERVERS $HTTP_PORTS (msg:&quot;AL Joomla<br />User Agent/XFF Header Serialized Object Injection RCE 0day Attempt&quot;;<br />flow:to_server,established; content:&quot;}__&quot;; http_header;<br />content:&quot;O:21:|22|JDatabaseDriverMysqli|22|&quot;; http_header;<br />content:&quot;O:17:|22|JSimplepieFactory|22|&quot;; http_header;<br />reference:url,freebuf.com/vuls/89754.html; classtype:web-application-attack;<br />sid:1100085;  tag:session,5,packets; rev:1;)'}
-Event Payload: 
-	Packet Details: 
-		Request Packet: 
-			Restful Call: GET
-			Protocol: HTTP/1.1
-			Host: example.com
-			Resource: /example
-			Full URL: example.com/example/
-		Response Packet: 
-			Response Code: 200
-			Response Message: OK
-Full Payload: 
-
-GET / HTTP/1.1
-Host: example.com
-Connection: Keep-Alive
-Accept-Encoding: gzip
-CF-IPCountry: US
-X-Forwarded-For: 24.68.10.10
-X-Forwarded-Proto: http
-Accept: */*
-User-Agent: I-swear-I-am-not-using-python-to-scan-you
-
-HTTP/1.1 200 OK
-Server: nginx
-Date: Thu, 22 Mar 2015 11:41:11 GMT
-Content-Type: text/html
-Transfer-Encoding: chunked
-Connection: keep-alive
-Set-Cookie: example_init=0; expires=Fri, 12-Mar-2015 13:45:51 GMT; path=/; domain=example.com
-X-Powered-By: PleskLin
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Example Domain</title>
-
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">
-    body {
-        background-color: #f0f0f2;
-        margin: 0;
-        padding: 0;
-        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        
-    }
-    div {
-        width: 600px;
-        margin: 5em auto;
-        padding: 50px;
-        background-color: #fff;
-        border-radius: 1em;
-    }
-    a:link, a:visited {
-        color: #38488f;
-        text-decoration: none;
-    }
-    @media (max-width: 700px) {
-        body {
-            background-color: #fff;
-        }
-        div {
-            width: auto;
-            margin: 0 auto;
-            border-radius: 0;
-            padding: 1em;
-        }
-    }
-    </style>    
-</head>
-
-<body>
-<div>
-    <h1>Example Domain</h1>
-    <p>This domain is established to be used for illustrative examples in documents. You may use this
-    domain in examples without prior coordination or asking for permission.</p>
-    <p><a href="http://www.iana.org/domains/example">More information...</a></p>
-</div>
-</body>
-</html>
++Summary of Events 
++	Summary Breakdown: 
++{   'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt': {   'www.example.com': {   '200': [ 13579,
++																														24680]}}}
++	Totals: 
++		Unique Signatures: 
++	{   'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt': [ 13579,
++																						  24680]}
++		Unique Hosts: 
++	{   'www.example.com': [13579, 24680]}
++		Response Code Tally: {   '200': [13579, 2468]}
++
++Events: 
++Event ID: 13579
++Event Link: 
++https://url.for.alertlogic.com/event.php?id=XXXXX&customer_id=XXXXXX&screen=event_monitor&filter_id=0
++Event Details: 
++{   'classification': 'web-application-attack',
++    'dest_addr': '10.11.12.13',
++    'dest_port': '80',
++    'protocol': 'tcp',
++    'sensor': 'widget-computer-1',
++    'severity': '0',
++    'signature_name': 'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt',
++    'source_addr': '12.34.56.78',
++    'source_port': '28790'}
++Signature Details: 
++{   'sig_id': '100213',
++    'sig_rule': 'alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"AL JoomlaUser Agent/XFF Header Serialized Object Injection RCE 0day Attempt";flow:to_server,established; content:"}__"; http_header;content:"O:21:|22|JDatabaseDriverMysqli|22|"; http_header;content:"O:17:|22|JSimplepieFactory|22|"; http_header;reference:url,freebuf.com/vuls/89754.html; classtype:web-application-attack;sid:1100085;  tag:session,5,packets; rev:1;)'}
++Event Payload: 
++	Packet Details: 
++		Request Packet: 
++			Restful Call: GET
++			Protocol: HTTP/1.1
++			Host: example.com
++			Resource: /example
++			Full URL: example.com/example/
++		Response Packet: 
++			Response Code: 200
++			Response Message: OK
++Full Payload: 
++
++GET / HTTP/1.1
++Host: example.com
++Connection: Keep-Alive
++Accept-Encoding: gzip
++CF-IPCountry: US
++X-Forwarded-For: 24.68.10.10
++X-Forwarded-Proto: http
++Accept: */*
++User-Agent: I-swear-I-am-not-using-python-to-scan-you
++
++HTTP/1.1 200 OK
++Server: nginx
++Date: Thu, 22 Mar 2015 11:41:11 GMT
++Content-Type: text/html
++Transfer-Encoding: chunked
++Connection: keep-alive
++Set-Cookie: example_init=0; expires=Fri, 12-Mar-2015 13:45:51 GMT; path=/; domain=example.com
++X-Powered-By: PleskLin
++
++<!DOCTYPE html>
++<html>
++<head>
++    <title>Example Domain</title>
++
++    <meta charset="utf-8" />
++    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1" />
++    <style type="text/css">
++    body {
++        background-color: #f0f0f2;
++        margin: 0;
++        padding: 0;
++        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
++        
++    }
++    div {
++        width: 600px;
++        margin: 5em auto;
++        padding: 50px;
++        background-color: #fff;
++        border-radius: 1em;
++    }
++    a:link, a:visited {
++        color: #38488f;
++        text-decoration: none;
++    }
++    @media (max-width: 700px) {
++        body {
++            background-color: #fff;
++        }
++        div {
++            width: auto;
++            margin: 0 auto;
++            border-radius: 0;
++            padding: 1em;
++        }
++    }
++    </style>    
++</head>
++
++<body>
++<div>
++    <h1>Example Domain</h1>
++    <p>This domain is established to be used for illustrative examples in documents. You may use this
++    domain in examples without prior coordination or asking for permission.</p>
++    <p><a href="http://www.iana.org/domains/example">More information...</a></p>
++</div>
++</body>
++</html>
++
++
++
++Event ID: 2468
++Event Link: 
++https://url.for.alertlogic.com/event.php?id=XXXXX&customer_id=XXXXXX&screen=event_monitor&filter_id=0
++Event Details: 
++{   'classification': 'web-application-attack',
++    'dest_addr': '10.11.12.13',
++    'dest_port': '80',
++    'protocol': 'tcp',
++    'sensor': 'widget-computer-1',
++    'severity': '0',
++    'signature_name': 'AL Joomla User Agent/XFF Header Serialized Object Injection RCE 0day Attempt',
++    'source_addr': '12.34.56.78',
++    'source_port': '28790'}
++Signature Details: 
++{   'sig_id': '100213',
++    'sig_rule': 'alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"AL JoomlaUser Agent/XFF Header Serialized Object Injection RCE 0day Attempt";flow:to_server,established; content:"}__"; http_header;content:"O:21:|22|JDatabaseDriverMysqli|22|"; http_header;content:"O:17:|22|JSimplepieFactory|22|"; http_header;reference:url,freebuf.com/vuls/89754.html; classtype:web-application-attack;sid:1100085;  tag:session,5,packets; rev:1;)'}
++Event Payload: 
++	Packet Details: 
++		Request Packet: 
++			Restful Call: GET
++			Protocol: HTTP/1.1
++			Host: example.com
++			Resource: /example
++			Full URL: example.com/example/
++		Response Packet: 
++			Response Code: 200
++			Response Message: OK
++Full Payload: 
++
++GET / HTTP/1.1
++Host: example.com
++Connection: Keep-Alive
++Accept-Encoding: gzip
++CF-IPCountry: US
++X-Forwarded-For: 24.68.10.10
++X-Forwarded-Proto: http
++Accept: */*
++User-Agent: I-swear-I-am-not-using-python-to-scan-you
++
++HTTP/1.1 200 OK
++Server: nginx
++Date: Thu, 22 Mar 2015 11:41:11 GMT
++Content-Type: text/html
++Transfer-Encoding: chunked
++Connection: keep-alive
++Set-Cookie: example_init=0; expires=Fri, 12-Mar-2015 13:45:51 GMT; path=/; domain=example.com
++X-Powered-By: PleskLin
++
++<!DOCTYPE html>
++<html>
++<head>
++    <title>Example Domain</title>
++
++    <meta charset="utf-8" />
++    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1" />
++    <style type="text/css">
++    body {
++        background-color: #f0f0f2;
++        margin: 0;
++        padding: 0;
++        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
++        
++    }
++    div {
++        width: 600px;
++        margin: 5em auto;
++        padding: 50px;
++        background-color: #fff;
++        border-radius: 1em;
++    }
++    a:link, a:visited {
++        color: #38488f;
++        text-decoration: none;
++    }
++    @media (max-width: 700px) {
++        body {
++            background-color: #fff;
++        }
++        div {
++            width: auto;
++            margin: 0 auto;
++            border-radius: 0;
++            padding: 1em;
++        }
++    }
++    </style>    
++</head>
++
++<body>
++<div>
++    <h1>Example Domain</h1>
++    <p>This domain is established to be used for illustrative examples in documents. You may use this
++    domain in examples without prior coordination or asking for permission.</p>
++    <p><a href="http://www.iana.org/domains/example">More information...</a></p>
++</div>
++</body>
++</html>
 ```
