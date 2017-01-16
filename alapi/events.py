@@ -118,7 +118,7 @@ class Event(AlertLogic):
             # logic for info
             sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*)</td>', r.text)
             if sig_details_search is not None:
-                sig_rule = sig_details_search.group('sig_rule')
+                sig_rule = str(sig_details_search.group('sig_rule'))
             sig_details = {
                 'sig_id': sig_id,
                 'sig_rule': sig_rule
