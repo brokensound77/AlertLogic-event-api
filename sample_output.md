@@ -1,3 +1,7 @@
+The output below is a representation of what is output when printing an
+Incident object. Everything contained as a diff add is what is provided
+additionally by this api directly
+
 ```diff
 +Customer ID: 123456
 +Incident ID: 987654321
