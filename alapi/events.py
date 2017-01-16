@@ -1,5 +1,6 @@
-""" Update """
-#TODO: update
+""" Primary Event class which extends the AlertLogic class and is comprised of multiple sublcasses, representing all of
+    the details and information of an Event.
+ """
 
 import binascii
 import time
@@ -128,11 +129,10 @@ class Event(AlertLogic):
                 }
             return sig_details
 
-    def __packet_analysis(self, payload): #request_payload, response_payload):
-        """
-
+    def __packet_analysis(self, payload):
+        """ Extracts information from the provided payload and returns the JSON annotated below
         :param payload (str):
-        :return:
+        :return: JSON
         """
         restful_call = 'none_parsed'
         protocol = 'none_parsed'
@@ -199,9 +199,9 @@ class Event(AlertLogic):
             #return decompressed_data
         #############################################
         if sys.platform != 'linux2':
-            decompressed_data += '\nCurrently only able to decompress data on linux...\n'
+            decompressed_data += '\nCurrently only able to decompress data on linux...\n'  #TODO: temp fix
             return decompressed_data
-        tmp_file_name = '/tmp/{0}_{1}.tmp'.format(event_id, time.time())  # unique name prevents overriding with threading
+        tmp_file_name = '/tmp/{0}_{1}.tmp'.format(event_id, time.time())  # unique name prevents overriding with threads
         with open(tmp_file_name, 'wb') as outfile:
             outfile.write(hold_bin)
         try:
@@ -218,15 +218,14 @@ class Event(AlertLogic):
         if os.path.exists(tmp_file_name):
             os.remove(tmp_file_name)
         # would be really awesome to be able to decompress incomplete with zlib instead of fooling with zcat
-        #return zlib.decompress(hold_bin, 16+zlib.MAX_WBITS)
+        # return zlib.decompress(hold_bin, 16+zlib.MAX_WBITS)
         return decompressed_data
 
     def get_event(self):
-        # self.event_id
         """
-                Retrieves the event page, parses some descriptive fields for metadata, and cleans up then reconstructs
-                the payload data. Returns
-                """
+            Retrieves the event page, parses some descriptive fields for metadata, and cleans up then reconstructs
+            the payload data. Returns
+        """
         full_event = {}
         signature_details = {}
         source_address = ''
@@ -248,7 +247,6 @@ class Event(AlertLogic):
             event_id, customer_id, screen, filter_id)
         self.event_url = event_url  # set global url
         r = alogic.get(event_url, allow_redirects=False)  #TODO: add exception handling around for requests.exceptions
-        # print r.status_code  # TODO: Add some exception handling here...try 3 times??? raise error? skip with message?
         if r.status_code != 200:
             raise NotAuthenticatedError('Failed to retrieve event #{0}. Status code: {1}. Reason: {2}'.format(
                 event_id, r.status_code, r.reason))
