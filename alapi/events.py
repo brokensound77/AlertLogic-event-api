@@ -42,6 +42,16 @@ class Event(AlertLogic):
                         self.__getattribute__('event_payload')))
         return to_string
 
+    def to_json(self):
+        to_json = {
+            'event_id': self.event_id,
+            'event_url': self.event_url,
+            'event_details': self.event_details,
+            'signature_details': self.signature_details,
+            'event_payload': self.event_payload.to_json()
+            }
+        return to_json
+
     def __get_signature_details(self, sig_id):
         parse_html = HTMLParser()
         primary_ur = 'https://scc.alertlogic.net/ids_signature/{0}'.format(sig_id)
@@ -321,12 +331,12 @@ class Event(AlertLogic):
         self.event_payload = EventPayload(full_payload, decompressed, raw3, packet_details)
 
 
-class EventPayload(object):
+class EventPayload(ALCommon):
     """Belongs to events"""
     def __init__(self, full, decompressed, raw, packet_details_json):
-        self.full_payload = full
-        self.decompressed = decompressed
-        self.raw_hex = raw  # raw hex
+        self.full_payload = full            # string
+        self.decompressed = decompressed    # string
+        self.raw_hex = raw                  # raw hex
         self.packet_details = self.get_packet_details(packet_details_json)  #TODO: capitalize object
 
     def __str__(self):
@@ -336,11 +346,20 @@ class EventPayload(object):
             to_string += '\nDecompressed Data: \n{0}'.format(self.decompressed)
         return to_string
 
+    def to_json(self):
+        to_json = {
+            'packet_details': self.packet_details.to_json(),
+            'full_payload': self.full_payload,
+            }
+        if self.decompressed != '':
+            to_json['Decompressed Data'] = self.decompressed
+        return to_json
+
     def get_packet_details(self, packet_details_json):
         return PacketDetails(packet_details_json)
 
 
-class PacketDetails(object):
+class PacketDetails(ALCommon):
     """Belongs to EventPayload"""
     def __init__(self, packet_details_json):
         self.request_packet = ''  # object --> RequestPacketDetails  #TODO: capitalize object
@@ -352,6 +371,13 @@ class PacketDetails(object):
                      'Response Packet: \n{1}'.format(self.request_packet, self.response_packet))
         return to_string
 
+    def to_json(self):
+        to_json = {
+            'request_packet': self.request_packet.to_json(),
+            'response_packet': self.response_packet.to_json(),
+            }
+        return to_json
+
     def disect_packet_details(self, packet_details_json):
         request_pack = packet_details_json['request_packet']
         response_pack = packet_details_json['response_packet']
@@ -359,7 +385,7 @@ class PacketDetails(object):
         self.response_packet = ResponsePacketDetails(response_pack)
 
 
-class RequestPacketDetails(object):
+class RequestPacketDetails(ALCommon):
     """Belongs to PacketDetails"""
     def __init__(self, request_dict):
         self.restful_call = request_dict['restful_call']
@@ -376,8 +402,18 @@ class RequestPacketDetails(object):
                      'Full URL: {4}'.format(self.restful_call, self.protocol, self.host, self.resource, self.full_url))
         return to_string
 
+    def to_json(self):
+        to_json = {
+            'restful_call': self.restful_call,
+            'protocol': self.protocol,
+            'host': self.host,
+            'resource': self.resource,
+            'full_url': self.full_url
+            }
+        return to_json
 
-class ResponsePacketDetails(object):
+
+class ResponsePacketDetails(ALCommon):
     """Belongs to PacketDetails"""
     def __init__(self, response_dict):
         self.response_code = response_dict['response_code']
@@ -387,3 +423,10 @@ class ResponsePacketDetails(object):
         to_string = ('Response Code: {0}\n'
                      'Response Message: {1}'.format(self.response_code, self.response_message))
         return to_string
+
+    def to_json(self):
+        to_json = {
+            'response_code': self.response_code,
+            'response_message': self.response_message
+            }
+        return to_json

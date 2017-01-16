@@ -10,9 +10,17 @@ from errors import *
 # re-instantiation within each individual Event object
 alogic = requests.Session()
 
+class ALCommon(object):
+    """class for shared attributes across all classes"""
 
-class AlertLogic(object):
-    """Shared attributes with Events and Incidents"""
+    def to_json(self):
+        """ to return json implementation"""
+        return
+
+
+
+class AlertLogic(ALCommon):
+    """Shared attributes with Events and Incidents; primarily credentials"""
     api_key = None
     username = None
     password = None
@@ -35,8 +43,5 @@ class AlertLogic(object):
 
     def reset_requests_session(self):  # TODO: This likely needs to go away; Session is created outside of the class
         alogic = requests.Session()
-
-    def to_json(self):
-        return
 
 
