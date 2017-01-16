@@ -147,7 +147,7 @@ class Incident(AlertLogic):
         if r.status_code != 200:
             raise NotAuthenticatedError('API Failed to authenticate')
         try:
-            self.incident_details = r.json()
+            self.incident_details = r.json()[0]
             self.event_ids = list(r.json()[0]['event_ids'])
             return
         except requests.RequestException:
