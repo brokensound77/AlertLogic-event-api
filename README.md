@@ -19,7 +19,7 @@ print incident
 ```
 Example output (with dummy data) included - [sample_output](https://github.com/brokensound77/AlertLogic-event-api/blob/development_version2_oop/sample_output.md)
 
-for full API documentation, refer to the wiki (coming soon)
+for full API documentation, refer to the [wiki](https://github.com/brokensound77/AlertLogic-event-api/wiki/API-Documentation)
 __________________
 #Using the old API 
 __________________
