@@ -50,10 +50,11 @@ class Incident(AlertLogic):
             'incident_id': self.incident_id,
             'customer_id': self.customer_id,
             'incident_details': self.incident_details,
-            'events_summary': self.events_summary.to_json()
+            'events_summary': self.events_summary.to_json(),
+            'events': {}
             }
         for i in self.Events.keys():
-            to_json[i] = self.Events[i].to_json()
+            to_json['events'][i] = self.Events[i].to_json()
         return to_json
 
     def login_al(self):
