@@ -24,6 +24,7 @@ class AlertLogic(ALCommon):
     api_key = None
     username = None
     password = None
+    al_logged_in = False
 
     def __init__(self):#, api_key=None, username=None, password=None):
         #self.api_key = api_key
@@ -38,10 +39,27 @@ class AlertLogic(ALCommon):
         AlertLogic.api_key = api_key
 
     def set_credentials(self, username, password):
+        """Sets global credentials and logs into Alert Logic with the session"""
         AlertLogic.username = username
         AlertLogic.password = password
+        AlertLogic.login_al(self)
 
     def reset_requests_session(self):  # TODO: This likely needs to go away; Session is created outside of the class
         alogic = requests.Session()
+
+    def login_al(self):
+        login_params = {#'SMENC': 'ISO-8859-1',
+                        'SMLOCALE': 'US-EN',
+                        'target': '-SM-/',
+                        'SMAUTHREASON': 0,
+                        'user': AlertLogic.username,
+                        'password': AlertLogic.password
+                        }
+        r = alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
+        if r.status_code != 200:
+            raise NotAuthenticatedError('Failed to authenticate with username and password. Status code: {0}\n'
+                                        'Exception: {1}'.format(r.status_code, r.reason))
+        AlertLogic.al_logged_in = True
+        return
 
 
