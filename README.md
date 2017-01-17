@@ -17,7 +17,7 @@ from src import al_api
 incident = al_api.Incident(incident_id, customer_id, api_key, username, password)
 print incident
 ```
-Example output (with dummy data) included - [sample_output](https://github.com/brokensound77/AlertLogic-event-api/blob/development_version2_oop/sample_output.md)
+Example output (with dummy data) included - [sample_output](https://github.com/brokensound77/AlertLogic-event-api/blob/sample_output.md)
 
 for full API documentation, refer to the [wiki](https://github.com/brokensound77/AlertLogic-event-api/wiki/API-Documentation)
 __________________
