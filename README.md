@@ -18,6 +18,8 @@ Example output (with dummy data) included - [sample_output](https://github.com/b
 
 for full API documentation, refer to the [wiki](https://github.com/brokensound77/AlertLogic-event-api/wiki/API-Documentation)
 
+***
+##Data Captured
 
 The table below shows all of the data that can be gathered with this API. Additionally, all of the incident details are also pulled via the actual Alert Logic Incident API and provided as well. To see this, go [here](https://docs.alertlogic.com/developer/).
 
