@@ -27,10 +27,10 @@ The table below shows all of the data that can be gathered with this API. Additi
 
 | Data                   | Example           | Description                                          | 
 |------------------------|:-----------------:|:-----------------------------------------------------|
-| response_code_tally \* | '200': [14608, 14621] | total of the packet response codes by event          
-| unique_hosts \*        | 'example.net': [14608, 14621] | all hosts targeted in the incident
-| unique_signatures \*   | 'AL Joomla...': [14608, 14621] | all signatures applicable to the incident
-| summary_breakdown \*   | 'AL Joomla...': {'example.net': {'200': [14608, 14621]}} | events by response by host by sig
+| response_code_tally\*  | '200': [14608, 14621] | total of the packet response codes by event          
+| unique_hosts\*         | 'example.net': [14608, 14621] | all hosts targeted in the incident
+| unique_signatures\*    | 'AL Joomla...': [14608, 14621] | all signatures applicable to the incident
+| summary_breakdown\*    | 'AL Joomla...': {'example.net': {'200': [14608, 14621]}} | events by response by host by sig
 | classification         | 'web-application-attack' | type of attack
 | dest_addr              | '123.45.78.90' | destination IP address
 | dest_port              | '12345' | destination port
