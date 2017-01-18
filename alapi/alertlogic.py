@@ -6,37 +6,48 @@
 import requests
 from errors import *
 
-# persistent session across all sub-classes; not instantiated within the class because this was breaking the session at
-# re-instantiation within each individual Event object
-alogic = requests.Session()
+
+class ALCommon(object):
+    """class for shared attributes across all classes"""
+
+    def to_json(self):
+        """ to return json implementation"""
+        return
 
 
-class AlertLogic(object):
-    """Shared attributes with Events and Incidents"""
+class AlertLogic(ALCommon):
+    """Shared attributes with Events and Incidents; primarily credentials"""
     api_key = None
     username = None
     password = None
-
-    def __init__(self):#, api_key=None, username=None, password=None):
-        #self.api_key = api_key
-        #self.username = username
-        #self.password = password
-        #AlertLogic.api_key = api_key
-        #AlertLogic.username = username
-        #AlertLogic.password = password
-        pass
+    al_logged_in = False         # allows sub classes to detect if a log-in was already initiated
+    alogic = requests.Session()  # persistent session across all sub-classes
 
     def set_api_key(self, api_key):
         AlertLogic.api_key = api_key
 
     def set_credentials(self, username, password):
+        """Sets global credentials and logs into Alert Logic with the session"""
         AlertLogic.username = username
         AlertLogic.password = password
+        AlertLogic.login_al(self)
 
     def reset_requests_session(self):  # TODO: This likely needs to go away; Session is created outside of the class
         alogic = requests.Session()
 
-    def to_json(self):
+    def login_al(self):
+        login_params = {#'SMENC': 'ISO-8859-1',
+                        'SMLOCALE': 'US-EN',
+                        'target': '-SM-/',
+                        'SMAUTHREASON': 0,
+                        'user': AlertLogic.username,
+                        'password': AlertLogic.password
+                        }
+        r = AlertLogic.alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
+        if r.status_code != 200:
+            raise NotAuthenticatedError('Failed to authenticate with username and password. Status code: {0}\n'
+                                        'Exception: {1}'.format(r.status_code, r.reason))
+        AlertLogic.al_logged_in = True
         return
 
 

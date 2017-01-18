@@ -15,7 +15,6 @@ class Incident(AlertLogic):
     """
 
     def __init__(self, incident_id, customer_id='all_children', api_key=None, username=None, password=None):
-        AlertLogic.__init__(self)
         self.incident_id = str(incident_id)
         self.customer_id = str(customer_id)     # all_children includes all accounts that the caller can access
         self.incident_details = ''              # JSON; get_incident_details()
@@ -27,7 +26,6 @@ class Incident(AlertLogic):
         if self.username is None or self.password is None and (username is not None and password is not None):
             AlertLogic.set_credentials(self, username, password)
         if self.username is not None and self.password is not None:
-            self.login_al()                         # authenticates with a session to preserve for event iteration
             self.Events = self.get_event_objects()  # list; Event class objects; set by get_events() #TODO: capitalize?
             self.events_summary = self.get_event_summary()  # dict; 'breakdown': {}, 'summary': object()  #TODO: capitalize?
 
@@ -45,19 +43,17 @@ class Incident(AlertLogic):
                         event_string))
         return to_string
 
-    def login_al(self):
-        login_params = {#'SMENC': 'ISO-8859-1',
-                        'SMLOCALE': 'US-EN',
-                        'target': '-SM-/',
-                        'SMAUTHREASON': 0,
-                        'user': self.username,
-                        'password': self.password
-                        }
-        r = alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
-        if r.status_code != 200:
-            raise NotAuthenticatedError('Failed to authenticate with username and password. Status code: {0}\n'
-                                        'Exception: {1}'.format(r.status_code, r.reason))
-        return
+    def to_json(self):
+        to_json = {
+            'incident_id': self.incident_id,
+            'customer_id': self.customer_id,
+            'incident_details': self.incident_details,
+            'events_summary': self.events_summary.to_json(),
+            'events': {}
+            }
+        for i in self.Events.keys():
+            to_json['events'][i] = self.Events[i].to_json()
+        return to_json
 
     def get_incident_details(self):
         """Makes a call to the API in order to set self.incident_details with the incident details. Schema per their
@@ -193,7 +189,7 @@ class Incident(AlertLogic):
         return EventsPacketSummary(self.Events)
 
 
-class EventsPacketSummary(object):
+class EventsPacketSummary(ALCommon):
     """Belongs to Incidents.events_summary"""
     def __init__(self, events_list):
         self.breakdown = ''                 # JSON breakdown: signature->host->response_code->[event_ids]
@@ -205,6 +201,13 @@ class EventsPacketSummary(object):
         to_string = ('Summary Breakdown: \n{0}\n'
                      'Summary: \n{1}'.format(pp.pformat(self.breakdown), self.summary))
         return to_string
+
+    def to_json(self):
+        to_json = {
+            'summary_breakdown': self.breakdown,
+            'event_summary': self.summary.to_json()
+            }
+        return to_json
 
     def get_events_info(self, events_list):
         """Iterates through the event objects and sets the global breakdown to JSON and the global summary to an
@@ -279,7 +282,7 @@ class EventsPacketSummary(object):
         self.summary = EventsSummarySummary(unique_signatures, unique_hosts, response_code_tally)
 
 
-class EventsSummarySummary(object):
+class EventsSummarySummary(ALCommon):
     """ belongs to EventsPacketSummary """
     def __init__(self, unique_sig, unique_host, unique_resp_code):
         self.unique_signatures = unique_sig          # dict --> sig: event_id
@@ -295,3 +298,11 @@ class EventsSummarySummary(object):
                         pp.pformat(self.unique_hosts),
                         pp.pformat(self.response_code_tally)))
         return to_string
+
+    def to_json(self):
+        to_json = {
+            'unique_signatures': self.unique_signatures,
+            'unique_hosts': self.unique_hosts,
+            'response_code_tally': self.response_code_tally
+            }
+        return to_json
