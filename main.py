@@ -57,5 +57,9 @@ for unique_host in unique_hosts:
     t.start()
 for thread in threads:
     thread.join()
-pp.pprint(results_cms)
+
+results_json = results.to_json()
+results_json["cms"] = results_cms
+
+pp.pprint(results_json)
 
