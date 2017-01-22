@@ -2,6 +2,16 @@ from alapi import alapi
 import ConfigParser
 import syslog
 import argparse
+import pprint
+import threading
+from src.cms_detector import scan
+
+
+def __print_cms(site, index):
+    try:
+        results_cms[index] = 'CMS Results for: {0}\n{1}\n{2}\n\n'.format(site, '-' * (17 + len(site)), scan(site))
+    except Exception as e:
+        syslog.syslog(syslog.LOG_ERR, 'Issue running cms_detector for: {0}; Error: {1}'.format(site, e.message))
 
 config_file = 'config.cfg'
 config = ConfigParser.RawConfigParser()
@@ -29,6 +39,23 @@ except TypeError as e:
     syslog.syslog(syslog.LOG_ERR, 'Issue parsing credentials; verify config file: {0}\n{1}'.format(config_file, e))
     exit(2)
 
-incident = alapi.Incident(incident_id, customer_id, api_key, username, password)
+results = alapi.Incident(incident_id, customer_id, api_key, username, password)
 
-print incident.to_json()
+pp = pprint.PrettyPrinter(indent=4)
+pp.pprint(results.to_json()["events_summary"]["event_summary"]["unique_hosts"].keys())
+
+unique_hosts = results.to_json()["events_summary"]["event_summary"]["unique_hosts"].keys()
+
+# created list for CMS Results
+results_cms = [{} for x in unique_hosts]
+threads = []
+i = 0
+for unique_host in unique_hosts:
+    t = threading.Thread(target=__print_cms, args=(unique_host, i, ))
+    i += 1
+    threads.append(t)
+    t.start()
+for thread in threads:
+    thread.join()
+pp.pprint(results_cms)
+
