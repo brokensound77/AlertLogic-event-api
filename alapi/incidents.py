@@ -14,9 +14,9 @@ class Incident(AlertLogic):
         encompass an Incident, to include Event objects.
     """
 
-    def __init__(self, incident_id, customer_id='all_children', api_key=None, username=None, password=None):
+    def __init__(self, incident_id, customer_id=None, api_key=None, username=None, password=None):
         self.incident_id = str(incident_id)
-        self.customer_id = str(customer_id)     # all_children includes all accounts that the caller can access
+        self.customer_id = str(customer_id) if customer_id is not None else None     # all_children includes all accounts that the caller can access
         self.incident_details = ''              # JSON; get_incident_details()
         self.event_ids = ''                     # list of str; retrieved and set in get_incident_details
         if self.api_key is None and api_key is not None:
@@ -145,17 +145,20 @@ class Incident(AlertLogic):
             }
         """
 
+        local_cust_id = self.customer_id if self.customer_id is not None else 'all_children'
         if self.api_key is None:
             raise CredentialsNotSet('Missing api key. If not instantiated, set with set_api_key()')
         header = {'accept': 'application/json'}
         url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id={0}&customer_id={1}'.format(
-            self.incident_id, self.customer_id)
+            self.incident_id, local_cust_id)
         r = requests.get(url, headers=header, auth=(self.api_key, ''))
         if r.status_code != 200:
             raise NotAuthenticatedError('API Failed to authenticate')
         try:
             self.incident_details = r.json()[0]
             self.event_ids = list(r.json()[0]['event_ids'])
+            if self.customer_id is None:
+                self.customer_id = self.incident_details['customer_id']
             return
         except requests.RequestException:  # TODO: add IndexError too?
             raise requests.RequestException('An error occurred trying to parse the incident details from "requests"')
@@ -163,6 +166,8 @@ class Incident(AlertLogic):
     def get_event_object(self, event_id):
         if self.username is None or self.password is None:
             raise CredentialsNotSet('Missing username or password. If not instantiated, set with set_credentials()')
+        if self.customer_id is None:
+            raise EventNotRetrievedError('Customer ID is not set')
         return Event(event_id, self.customer_id)
 
     def get_event_objects(self):
