@@ -5,6 +5,7 @@ import argparse
 import pprint
 import threading
 from src.cms_detector import scan
+import json
 
 
 def __print_cms(site, index):
@@ -24,6 +25,7 @@ args = parser.parse_args()
 
 incident_id = args.incident
 customer_id = args.customer
+config_file = args.conf
 
 try:
     config.read(config_file)
@@ -42,7 +44,7 @@ except TypeError as e:
 results = alapi.Incident(incident_id, customer_id, api_key, username, password)
 
 pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(results.to_json()["events_summary"]["event_summary"]["unique_hosts"].keys())
+
 
 unique_hosts = results.to_json()["events_summary"]["event_summary"]["unique_hosts"].keys()
 
@@ -61,5 +63,8 @@ for thread in threads:
 results_json = results.to_json()
 results_json["cms"] = results_cms
 
-pp.pprint(results_json)
+r = json.dumps(results_json)
+
+#pp.pprint(results_json)
+print (r)
 
