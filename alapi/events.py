@@ -267,15 +267,15 @@ class Event(AlertLogic):
         # REGEX Event Details
         ###################################################################
         rex = re.compile(
-            "var source_addr = '(?P<source_address>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})';\n" +
-            "var dest_addr = '(?P<dest_address>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})';\n" +
-            "var source_port = '(?P<source_port>\d{0,5})';\n" +
-            "var dest_port = '(?P<dest_port>\d{0,5})';\n" +
-            "var signature_name = '(?P<signature_name>[=/_()\.\w\s-]*)';\n" +
-            "var sensor = '(?P<sensor>[\w\d-]*)';\n" +
-            "var protocol = '(?P<protocol>\w*)';\n" +
-            "var classification = '(?P<classification>[\w\s-]*)';\n" +
-            "var severity = '(?P<severity>\d*)';\n")
+            "\s*var source_addr = '(?P<source_address>.+)';\s*\n" +
+            "\s*var dest_addr = '(?P<dest_address>.+)';\s*\n" +
+            "\s*var source_port = '(?P<source_port>.+)';\s*\n" +
+            "\s*var dest_port = '(?P<dest_port>.+)';\s*\n" +
+            "\s*var signature_name = '(?P<signature_name>.+)';\s*\n" +
+            "\s*var sensor = '(?P<sensor>.+)';\s*\n" +
+            "\s*var protocol = '(?P<protocol>.+)';\s*\n" +
+            "\s*var classification = '(?P<classification>.+)';\s*\n" +
+            "\s*var severity = '(?P<severity>.+)';\s*\n")
         rex_results = rex.search(tmp_raw_page)
         if rex_results:
             source_address = rex_results.group('source_address')
