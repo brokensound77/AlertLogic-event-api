@@ -129,7 +129,7 @@ class Event(AlertLogic):
             return sig_details
 
         elif winner == 'backup':
-            sig_rule = ''
+            sig_rule = 'none_parsed'
             # logic for info
             sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*)</td>', r.text)
             if sig_details_search is not None:
@@ -240,15 +240,15 @@ class Event(AlertLogic):
         """
         full_event = {}
         signature_details = {}
-        source_address = ''
-        dest_address = ''
-        source_port = ''
-        dest_port = ''
-        signature_name = ''
-        sensor = ''
-        protocol = ''
-        classification = ''
-        severity = ''
+        source_address = 'none_parsed'
+        dest_address = 'none_parsed'
+        source_port = 'none_parsed'
+        dest_port = 'none_parsed'
+        signature_name = 'none_parsed'
+        sensor = 'none_parsed'
+        protocol = 'none_parsed'
+        classification = 'none_parsed'
+        severity = 'none_parsed'
         decompressed = ''
         packet_details = ''
         event_id = str(self.event_id)
