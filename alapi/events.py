@@ -131,10 +131,13 @@ class Event(AlertLogic):
         elif winner == 'backup':
             sig_rule = 'none_parsed'
             # logic for info
-            sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*)</td>', r.text)
+            sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*?)</td>', r.text, re.DOTALL)
             if sig_details_search is not None:
                 sig_rule_dirty = sig_details_search.group('sig_rule')
-                sig_rule = parse_html.unescape(sig_rule_dirty).replace('<br />', '')
+                try:
+                    sig_rule = parse_html.unescape(sig_rule_dirty).replace('<br />', '')
+                except Exception:
+                    sig_rule = sig_rule_dirty + '\n\n**Unable to render HTML for this rule**'
             sig_details = {
                 'sig_id': sig_id,
                 'sig_rule': str(sig_rule)
