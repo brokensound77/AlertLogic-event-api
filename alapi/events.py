@@ -14,6 +14,9 @@ from string import printable
 from HTMLParser import HTMLParser
 from alertlogic import *
 
+#TMP
+from tmp_header import header_parse
+
 
 class Event(AlertLogic):
     def __init__(self, event_id, customer_id, username=None, password=None):
@@ -167,17 +170,20 @@ class Event(AlertLogic):
         if rex_response:
             response_code = rex_response.group('code')                   # 302
             response_message = rex_response.group('message')             # Found
+        headers = header_parse(payload)
         packet_details = {
             'request_packet': {
                 'restful_call':     restful_call,
                 'protocol':         protocol,
                 'host':             host,
                 'resource':         resource,
-                'full_url':         host + resource
+                'full_url':         host + resource,
+                'request_headers':  headers['request_headers']
                 },
             'response_packet': {
                 'response_code':    response_code,
-                'response_message': response_message
+                'response_message': response_message,
+                'response_headers': headers['response_headers']
                 }
             }
         return packet_details
@@ -395,13 +401,19 @@ class RequestPacketDetails(ALCommon):
         self.host = request_dict['host']
         self.resource = request_dict['resource']
         self.full_url = request_dict['full_url']
+        self.request_headers = request_dict['request_headers']
 
     def __str__(self):
+        headers = ''
+        for k, v in self.request_headers.items():
+            headers += '\t\t{0}: {1}\n'.format(k, v)
         to_string = ('Restful Call: {0}\n'
                      'Protocol: {1}\n'
                      'Host: {2}\n'
                      'Resource: {3}\n'
-                     'Full URL: {4}'.format(self.restful_call, self.protocol, self.host, self.resource, self.full_url))
+                     'Full URL: {4}\n'
+                     'Request Headers: \n{5}'.format(
+                        self.restful_call, self.protocol, self.host, self.resource, self.full_url, headers))
         return to_string
 
     def to_json(self):
@@ -410,7 +422,8 @@ class RequestPacketDetails(ALCommon):
             'protocol': self.protocol,
             'host': self.host,
             'resource': self.resource,
-            'full_url': self.full_url
+            'full_url': self.full_url,
+            'request_headers': self.request_headers
             }
         return to_json
 
@@ -420,15 +433,21 @@ class ResponsePacketDetails(ALCommon):
     def __init__(self, response_dict):
         self.response_code = response_dict['response_code']
         self.response_message = response_dict['response_message']
+        self.response_headers = response_dict['response_headers']
 
     def __str__(self):
+        headers = ''
+        for k, v in self.response_headers.items():
+            headers += '\t\t{0}: {1}\n'.format(k, v)
         to_string = ('Response Code: {0}\n'
-                     'Response Message: {1}'.format(self.response_code, self.response_message))
+                     'Response Message: {1}\n'
+                     'Response Headers: \n{2}'.format(self.response_code, self.response_message, headers))
         return to_string
 
     def to_json(self):
         to_json = {
             'response_code': self.response_code,
-            'response_message': self.response_message
+            'response_message': self.response_message,
+            'response_headers': self.response_headers
             }
         return to_json
