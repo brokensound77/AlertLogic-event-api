@@ -50,5 +50,5 @@ The table below shows all of the data that can be gathered with this API. Additi
 | full_payload           | `_entire packet contents_` | the full payload of the packets captured in the attack (request and response)
 | decompressed           | `_decompressed gzip data_` | decompressed gzip data, if present
 | event_url              | `_full AL Event URL_` | url for the event
-| sig_id                 | `'100211' | signature ID applicable to the event
+| sig_id                 | `'100211'` | signature ID applicable to the event
 | sig_rule               | `'alert any any -> any any...'` | the full signature rule which triggered the event
