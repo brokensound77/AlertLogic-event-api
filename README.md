@@ -2,12 +2,12 @@
 
 Client side API for interacting with Alert Logic incidents and events (from threat manager). Alert Logic does not offer an API or any way to interact with events directly. This API also provides additional contextual summary information of all of the events tied to the specific incident.
 
-##Requirements
+## Requirements
 The only requirement is requests
 
 It is advisable to install within a virtualenv
 
-##Simple usage:
+## Simple usage:
 ```python
 from alapi import alapi
 
