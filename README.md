@@ -47,8 +47,8 @@ The table below shows all of the data that can be gathered with this API. Additi
 | restful_call           | `'POST'` | the restful call used in the attack
 | response_code          | `'200'` | response code of the host being attacked
 | response_message       | `'OK'` | response message of the host being attacked
-| full_payload           | `_entire packet contents_` | the full payload of the packets captured in the attack (request and response)
-| decompressed           | `_decompressed gzip data_` | decompressed gzip data, if present
-| event_url              | `_full AL Event URL_` | url for the event
+| full_payload           | _entire packet contents_ | the full payload of the packets captured in the attack (request and response)
+| decompressed           | _decompressed gzip data_ | decompressed gzip data, if present
+| event_url              | _full AL Event URL_ | url for the event
 | sig_id                 | `'100211'` | signature ID applicable to the event
 | sig_rule               | `'alert any any -> any any...'` | the full signature rule which triggered the event
