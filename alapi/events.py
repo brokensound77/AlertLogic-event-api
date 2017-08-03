@@ -234,7 +234,12 @@ class Event(AlertLogic):
             os.remove(tmp_file_name)
         # would be really awesome to be able to decompress incomplete with zlib instead of fooling with zcat
         # return zlib.decompress(hold_bin, 16+zlib.MAX_WBITS)
-        return decompressed_data
+        #
+        # The code below was replaced to prevent non-printable characters from returning
+        #return decompressed_data  #TODO: remove if tests work fine
+        ascii_decompressed_data = decompressed_data.decode('ascii', 'ignore')
+        printable_ascii_compressed_data = ''.join([c for c in ascii_decompressed_data if c in printable])
+        return printable_ascii_compressed_data
 
     def get_event(self):
         """
