@@ -166,7 +166,7 @@ class Event(AlertLogic):
         if rex_host:
             host = rex_host.group('host')
         # response
-        rex_response = re.search('HTTP/[\d\.]+\s(?P<code>\d{3})\s(?P<message>[\w ]*)', payload)
+        rex_response = re.search('^HTTP/[\d\.]+\s(?P<code>\d{3})\s(?P<message>[\w ]*)', payload, re.M)
         if rex_response:
             response_code = rex_response.group('code')                   # 302
             response_message = rex_response.group('message')             # Found
