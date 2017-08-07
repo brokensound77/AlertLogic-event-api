@@ -327,7 +327,7 @@ class Event(AlertLogic):
             if hexstring is not None:
                 raw_hex += hexstring.string + '\n'
         # print raw_hex  # preserve this to print raw hex formatted
-        raw2 = re.findall(r'(?<=0x[\da-fA_F]{4}:\s)\b[\da-fA-F]{4}\b|(?<=[\da-fA-F]{4}\s)\b[\da-fA-F]{4}\b', raw_hex)
+        raw2 = re.findall(r'(?<=0x[\da-fA_F]{4}:\s)\b[\da-fA-F]{2,4}\b|(?<=[\da-fA-F]{4}\s)\b[\da-fA-F]{2,4}\b', raw_hex)
         raw3 = ''  # this is the TRUE raw hex of the packets
         for chunk in raw2:
             raw3 += chunk  # true raw hex!
