@@ -162,6 +162,9 @@ class Incident(AlertLogic):
             return
         except requests.RequestException:  # TODO: add IndexError too?
             raise requests.RequestException('An error occurred trying to parse the incident details from "requests"')
+        except IndexError as e:
+            raise IncidentNotRetrievedError('An error occurred parsing the results of the incident API call for this '
+                                            'incident. Check the actual incident page for details')
 
     def get_event_object(self, event_id):
         if self.username is None or self.password is None:

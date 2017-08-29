@@ -166,7 +166,7 @@ class Event(AlertLogic):
         if rex_host:
             host = rex_host.group('host')
         # response
-        rex_response = re.search('HTTP/[\d\.]+\s(?P<code>\d{3})\s(?P<message>[\w ]*)', payload)
+        rex_response = re.search('^HTTP/[\d\.]+\s(?P<code>\d{3})\s(?P<message>[\w ]*)', payload, re.M)
         if rex_response:
             response_code = rex_response.group('code')                   # 302
             response_message = rex_response.group('message')             # Found
@@ -234,7 +234,12 @@ class Event(AlertLogic):
             os.remove(tmp_file_name)
         # would be really awesome to be able to decompress incomplete with zlib instead of fooling with zcat
         # return zlib.decompress(hold_bin, 16+zlib.MAX_WBITS)
-        return decompressed_data
+        #
+        # The code below was replaced to prevent non-printable characters from returning
+        #return decompressed_data  #TODO: remove if tests work fine
+        ascii_decompressed_data = decompressed_data.decode('ascii', 'ignore')
+        printable_ascii_compressed_data = ''.join([c for c in ascii_decompressed_data if c in printable])
+        return printable_ascii_compressed_data
 
     def get_event(self):
         """
@@ -322,7 +327,7 @@ class Event(AlertLogic):
             if hexstring is not None:
                 raw_hex += hexstring.string + '\n'
         # print raw_hex  # preserve this to print raw hex formatted
-        raw2 = re.findall(r'(?<=0x[\da-fA_F]{4}:\s)\b[\da-fA-F]{4}\b|(?<=[\da-fA-F]{4}\s)\b[\da-fA-F]{4}\b', raw_hex)
+        raw2 = re.findall(r'(?<=0x[\da-fA_F]{4}:\s)\b[\da-fA-F]{2,4}\b|(?<=[\da-fA-F]{4}\s)\b[\da-fA-F]{2,4}\b', raw_hex)
         raw3 = ''  # this is the TRUE raw hex of the packets
         for chunk in raw2:
             raw3 += chunk  # true raw hex!

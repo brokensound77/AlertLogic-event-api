@@ -5,7 +5,7 @@ Client side API for interacting with Alert Logic incidents and events (from thre
 ## Requirements
 The only requirement is requests
 
-It is advisable to install within a virtualenv
+(and of course you need AL credentials and an API key)
 
 ## Simple usage:
 ```python
