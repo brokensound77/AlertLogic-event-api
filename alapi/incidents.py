@@ -149,7 +149,7 @@ class Incident(AlertLogic):
         if self.api_key is None:
             raise CredentialsNotSet('Missing api key. If not instantiated, set with set_api_key()')
         header = {'accept': 'application/json'}
-        url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id={0}&customer_id={1}'.format(
+        url = 'https://api.alertlogic.net/api/incident/v3/incidents?incident_id={0}&customer_id={1}&escalated_only=false'.format(
             self.incident_id, local_cust_id)
         r = requests.get(url, headers=header, auth=(self.api_key, ''))
         if r.status_code != 200:
@@ -160,7 +160,7 @@ class Incident(AlertLogic):
             if self.customer_id is None:
                 self.customer_id = self.incident_details['customer_id']
             return
-        except requests.RequestException:  # TODO: add IndexError too?
+        except requests.RequestException:
             raise requests.RequestException('An error occurred trying to parse the incident details from "requests"')
         except IndexError as e:
             raise IncidentNotRetrievedError('An error occurred parsing the results of the incident API call for this '
