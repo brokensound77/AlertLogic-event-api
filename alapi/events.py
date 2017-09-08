@@ -191,6 +191,7 @@ class Event(AlertLogic):
         protocol = 'none_parsed'
         classification = 'none_parsed'
         severity = 'none_parsed'
+        event_time = 'none_parsed'
         decompressed = ''
         packet_details = ''
         event_id = str(self.event_id)
@@ -249,6 +250,14 @@ class Event(AlertLogic):
             sig_id = sig_id_search.group('sig_id')
             # TODO: this should break into its own thread that joins right before the full event {} assembly; maybe
             signature_details = self.__get_signature_details(str(sig_id))  # for global signature details
+        ###################################################################
+        # engine time of event
+        ###################################################################
+        event_time_search = re.search(
+            '<td>Engine\sTime:</td>\s+<td><span\sclass="bold">(?P<event_time>.*?)</span></td>', tmp_raw_page)
+        if event_time_search is not None:
+            event_time = event_time_search.group('event_time')
+            details.update({'event_time': event_time})
         ##################################################################
         ##################################################################
         #  The start and end parse are the most susceptible to breaking due to changes by Alert Logic!
