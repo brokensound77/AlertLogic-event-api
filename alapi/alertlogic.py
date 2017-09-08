@@ -32,8 +32,9 @@ class AlertLogic(ALCommon):
         AlertLogic.password = password
         AlertLogic.login_al(self)
 
-    def reset_requests_session(self):  # TODO: This likely needs to go away; Session is created outside of the class
-        alogic = requests.Session()
+    def reset_requests_session(self):
+        """ resets request session for all """
+        AlertLogic.alogic = requests.Session()
 
     def login_al(self):
         login_params = {#'SMENC': 'ISO-8859-1',
