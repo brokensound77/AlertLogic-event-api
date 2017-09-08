@@ -54,29 +54,32 @@ class Event(AlertLogic):
             }
         return to_json
 
-    def __get_signature_details(self, sig_id):
+    def __get_signature_details(self, sig_id, raw_sig=None):
         """ Retrieves signature detail from the sid_id specified page """
         parse_html = HTMLParser()
-        sig_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
-        r = AlertLogic.alogic.get(sig_url)
-        if r.status_code != 200:
-            return 'Failed to retrieve signature details :('
-
-        else:
-            sig_rule = 'none_parsed'
+        sig_rule = 'none_parsed'
+        if raw_sig is None:
+            sig_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
+            r = AlertLogic.alogic.get(sig_url)
+            if r.status_code != 200:
+                return 'Failed to retrieve signature details :('
             # logic for info
             sig_details_search = re.search('<th>Signature\sContent</th>[\s\n]+<td>(?P<sig_rule>.*?)</td>', r.text, re.DOTALL)
+            sig_rule_dirty = ''
             if sig_details_search is not None:
                 sig_rule_dirty = sig_details_search.group('sig_rule')
-                try:
-                    sig_rule = parse_html.unescape(sig_rule_dirty).replace('<br />', '')
-                except Exception:
-                    sig_rule = sig_rule_dirty + '\n\n**Unable to render HTML for this rule**'
-            sig_details = {
-                'sig_id': sig_id,
-                'sig_rule': str(sig_rule)
-                }
-            return sig_details
+        else:
+            sig_rule_dirty = raw_sig
+            # TODO: this version always includes escaped quotes (\") even with hmtl removal; needs to be removed!
+        try:
+            sig_rule = parse_html.unescape(sig_rule_dirty).replace('<br />', '')
+        except Exception:
+            sig_rule = sig_rule_dirty + '\n\n**Unable to render HTML for this rule**'
+        sig_details = {
+            'sig_id': sig_id,
+            'sig_rule': str(sig_rule)
+            }
+        return sig_details
 
     def __packet_analysis(self, payload):
         """ Extracts information from the provided payload and returns the JSON annotated below
@@ -246,7 +249,10 @@ class Event(AlertLogic):
         # REGEX Signature Details
         ###################################################################
         sig_id_search = re.search('<strong><a\shref="/signature.php\?[\w=&]*sid=(?P<sig_id>\d+).+', tmp_raw_page)
-        if sig_id_search is not None:
+        sig_raw_search = re.search('<td>Signature\sContent:</td>[\s\n]+<td>(?P<sig_rule>.*?)</td>\s*', tmp_raw_page, re.DOTALL)
+        if sig_raw_search is not None and sig_id_search is not None:
+            signature_details = self.__get_signature_details(sig_id_search.group('sig_id'), sig_raw_search.group('sig_rule'))
+        elif sig_id_search is not None:
             sig_id = sig_id_search.group('sig_id')
             # TODO: this should break into its own thread that joins right before the full event {} assembly; maybe
             signature_details = self.__get_signature_details(str(sig_id))  # for global signature details
