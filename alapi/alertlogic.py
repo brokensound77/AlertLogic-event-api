@@ -4,6 +4,8 @@
 """
 
 import requests
+import re
+from HTMLParser import HTMLParser
 from errors import *
 
 
@@ -37,14 +39,39 @@ class AlertLogic(ALCommon):
         AlertLogic.alogic = requests.Session()
 
     def login_al(self):
-        login_params = {#'SMENC': 'ISO-8859-1',
-                        'SMLOCALE': 'US-EN',
-                        'target': '-SM-/',
-                        'SMAUTHREASON': 0,
-                        'user': AlertLogic.username,
-                        'password': AlertLogic.password
-                        }
-        r = AlertLogic.alogic.post('https://console.clouddefender.alertlogic.com/forms/login2.fcc', data=login_params)
+        parse_html = HTMLParser()
+        login_params = {
+            'audience': 'https://alertlogic.com/',
+            'protocol': 'oauth2',
+            'redirect_uri': 'https://console.clouddefender.alertlogic.com/core/start/auth0',
+            'response_mode': 'query',
+            'response_type': 'code',
+            'scope': 'openid id_token',
+            'connection': 'aims-global',
+            'tenant': 'alertlogic',
+            'username': AlertLogic.username,
+            'password': AlertLogic.password
+        }
+        r0 = AlertLogic.alogic.get('https://console.clouddefender.alertlogic.com/')
+        client_state = re.search('state=(?P<state>.+)', r0.url).group('state')
+        client_info_raw = str(r0.history[0].headers.get('Location'))
+        client_id = re.search('client_id=(?P<id>.+?)&', client_info_raw).group('id')
+        client_nonce = re.search('nonce=(?P<id>.+?)&', client_info_raw).group('id')
+        login_params['state'] = client_state
+        login_params['client_id'] = client_id
+        login_params['nonce'] = client_nonce
+        r1 = AlertLogic.alogic.post('https://alertlogic.auth0.com/usernamepassword/login', data=login_params)
+        callback_data_raw = r1.text
+        callback_wa = re.search('name="wa".+?value="(?P<wa>.+?)"', callback_data_raw, re.DOTALL).group('wa')
+        callback_wresult = re.search('name="wresult".+?value="(?P<wresult>.+?)"', callback_data_raw, re.DOTALL).group(
+            'wresult')
+        callback_wctx = re.search('name="wctx".+?value="(?P<wctx>.+?)"', callback_data_raw, re.DOTALL).group('wctx')
+        callback_data = {
+            'wa': callback_wa,
+            'wresult': callback_wresult,
+            'wctx': parse_html.unescape(callback_wctx)
+        }
+        r = AlertLogic.alogic.post('https://alertlogic.auth0.com/login/callback', data=callback_data)
         if r.status_code != 200:
             raise NotAuthenticatedError('Failed to authenticate with username and password. Status code: {0}\n'
                                         'Exception: {1}'.format(r.status_code, r.reason))
