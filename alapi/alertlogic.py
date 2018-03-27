@@ -53,7 +53,7 @@ class AlertLogic(ALCommon):
             'password': AlertLogic.password
         }
         r0 = AlertLogic.alogic.get('https://console.clouddefender.alertlogic.com/')
-        client_state = re.search('state=(?P<state>.+)', r0.url).group('state')
+        client_state = re.search('state=(?P<state>.+?)&', r0.url).group('state')
         client_info_raw = str(r0.history[0].headers.get('Location'))
         client_id = re.search('client_id=(?P<id>.+?)&', client_info_raw).group('id')
         client_nonce = re.search('nonce=(?P<id>.+?)&', client_info_raw).group('id')
