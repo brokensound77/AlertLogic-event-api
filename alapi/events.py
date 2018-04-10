@@ -201,7 +201,7 @@ class Event(AlertLogic):
         customer_id = str(self.customer_id)
         screen = 'event_monitor'
         filter_id = '0'
-        event_url = 'https://console.clouddefender.alertlogic.com/event.php?id={0}&customer_id={1}&screen={2}&filter_id={3}'.format(
+        event_url = 'https://console.clouddefender.alertlogic.com/embedded/event.php?id={0}&customer_id={1}&screen={2}&filter_id={3}'.format(
             event_id, customer_id, screen, filter_id)
         self.event_url = event_url  # set global url
         r = AlertLogic.alogic.get(event_url, allow_redirects=False)  #TODO: add exception handling around for requests.exceptions
