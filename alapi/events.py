@@ -59,7 +59,7 @@ class Event(AlertLogic):
         parse_html = HTMLParser()
         sig_rule = 'none_parsed'
         if raw_sig is None:
-            sig_url = 'https://console.clouddefender.alertlogic.com/signature.php?sid={0}'.format(sig_id)
+            sig_url = 'https://console.clouddefender.alertlogic.com/embedded/signature.php?sid={0}'.format(sig_id)
             r = AlertLogic.alogic.get(sig_url)
             if r.status_code != 200:
                 return 'Failed to retrieve signature details :('
