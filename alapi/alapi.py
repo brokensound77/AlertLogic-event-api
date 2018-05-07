@@ -3,8 +3,8 @@
 # Author: Justin Ibarra (justin.s.ibarra@gmail.com)
 # License: MIT - A full copy of the license is provided with this source code
 
-from incidents import Incident, Event, threading
-from errors import IncidentNotRetrievedError, EventNotRetrievedError
+from .incidents import Incident, Event, threading
+from .errors import IncidentNotRetrievedError, EventNotRetrievedError
 
 
 def get_event(event_id, customer_id, username, password, to_json=False):
