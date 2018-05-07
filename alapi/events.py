@@ -11,8 +11,8 @@ import sys
 import re
 import pprint
 from string import printable
-from HTMLParser import HTMLParser
-from alertlogic import *
+from html.parser import HTMLParser
+from .alertlogic import *
 
 
 class Event(AlertLogic):
@@ -281,7 +281,8 @@ class Event(AlertLogic):
         for chunk in raw2:
             raw3 += chunk  # true raw hex!
         full_payload1 = '{0}'.format(
-            raw3.decode('hex').decode('ascii', 'ignore'))  # what is lost with ignore vs 'replace'
+            # raw3.decode('hex').decode('ascii', 'ignore'))  # what is lost with ignore vs 'replace'
+            bytes.fromhex(raw3).decode('ascii', 'ignore'))
         full_payload = ''.join([c for c in full_payload1 if c in printable])
         packet_details = self.__packet_analysis(full_payload)
         decompressed = self.__gz_handler(event_id, raw3)
