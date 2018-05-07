@@ -5,8 +5,8 @@
 
 import requests
 import re
-from HTMLParser import HTMLParser
-from errors import *
+from html.parser import HTMLParser
+from .errors import *
 
 
 class ALCommon(object):
@@ -77,5 +77,4 @@ class AlertLogic(ALCommon):
                                         'Exception: {1}'.format(r.status_code, r.reason))
         AlertLogic.al_logged_in = True
         return
-
 
