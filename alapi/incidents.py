@@ -3,8 +3,8 @@
  """
 
 import threading
-from alertlogic import *
-from events import Event
+from .alertlogic import *
+from .events import Event
 import pprint
 
 
