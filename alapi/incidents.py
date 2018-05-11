@@ -157,7 +157,7 @@ class Incident(AlertLogic):
         try:
             self.incident_details = r.json()[0]
             self.event_ids = list(r.json()[0]['event_ids'])
-            if self.customer_id is None:
+            if self.customer_id is None or self.customer_id == 'all_children':
                 self.customer_id = self.incident_details['customer_id']
             return
         except requests.RequestException:
